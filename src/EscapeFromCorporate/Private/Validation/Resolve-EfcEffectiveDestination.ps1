@@ -60,7 +60,7 @@ function Resolve-EfcEffectiveDestination {
     # used elsewhere in this project (Test-EfcPreflight, ConvertFrom-RobocopyLine).
     $trimmedSource = $Source -replace '[\\/]+$', ''
 
-    # --- Degenerate-root guard: MUST run before any Split-Path call ------------
+    # --- Degenerate-root guard: MUST run before any leaf extraction ------------
     # 'C:' (a bare drive letter, no separator) is NOT an empty/opaque string to
     # PowerShell - it is a Windows "drive-relative path", a distinct concept
     # meaning "the current working directory on that drive for this session".
@@ -73,7 +73,7 @@ function Resolve-EfcEffectiveDestination {
     # nesting under a value that depends on the caller's $PWD at invocation
     # time would be exactly the kind of surprise this guard exists to avoid.
     # A bare UNC root ('\\server' or '\\server\share') is equally leaf-less
-    # and is guarded the same way, without ever reaching Split-Path.
+    # and is guarded the same way, without ever reaching leaf extraction.
     $isBareDriveRoot = $trimmedSource -match '^[A-Za-z]:$'
     $isBareUncRoot   = $trimmedSource -match '^\\\\[^\\]+(\\[^\\]+)?$'
 
@@ -81,7 +81,25 @@ function Resolve-EfcEffectiveDestination {
         return $Destination
     }
 
-    $leaf = Split-Path -LiteralPath $trimmedSource -Leaf -ErrorAction SilentlyContinue
+    # --- Leaf extraction: pure string/regex, no filesystem-provider cmdlet ---
+    # The literal-path form of the path-splitting cmdlet lives in its own
+    # exclusive parameter set that declares NONE of the mode switches (leaf,
+    # parent, qualifier, etc.). Pairing the literal-path parameter with any
+    # mode switch is a terminating ParameterBindingException raised during
+    # parameter binding itself, so -ErrorAction SilentlyContinue cannot
+    # suppress it - PSScriptAnalyzer cannot flag it either, since both
+    # parameters are individually valid on their own. See
+    # tests/Unit/SourceHygiene.Tests.ps1, which asserts this combination
+    # never appears anywhere under src/.
+    #
+    # Strip a leading drive-relative prefix ('C:' not followed by a
+    # separator, e.g. 'C:Data') first, then split on both separator styles
+    # and take the last non-empty segment. This still never consults $PWD.
+    $stripped = $trimmedSource -replace '^[A-Za-z]:(?![\\/])', ''
+    $segments = @($stripped -split '[\\/]' | Where-Object { $_ -ne '' })
+
+    $leaf = if ($segments.Count -gt 0) { $segments[-1] } else { $null }
+
     if ([string]::IsNullOrWhiteSpace($leaf)) {
         # Any other unexpected leaf-less shape: fail safe to content-copy
         # semantics rather than guessing.

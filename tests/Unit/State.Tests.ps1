@@ -303,8 +303,13 @@ Describe 'Resolve-EfcEffectiveDestination (rsync-style trailing-slash semantics)
     
     It 'nests the last segment of a deep UNC source' {
         InModuleScope EscapeFromCorporate {
-            Resolve-EfcEffectiveDestination -Source '\\SERVER\Share\Projects\Alpha' -Destination 'D:\Backup' |
-                Should -Be (Join-Path 'D:\Backup' 'Alpha')
+            # Destination is intentionally a UNC path here, not a drive letter
+            # (e.g. 'D:\Backup'). Join-Path is provider-aware and resolves the
+            # drive through a PSDrive - on any machine/runner without a D:
+            # drive attached, Join-Path itself throws DriveNotFoundException,
+            # independent of anything Resolve-EfcEffectiveDestination does.
+            Resolve-EfcEffectiveDestination -Source '\\SERVER\Share\Projects\Alpha' -Destination '\\NAS\Dump' |
+                Should -Be (Join-Path '\\NAS\Dump' 'Alpha')
         }
     }
 

@@ -55,3 +55,6 @@ $RECYCLE.BIN/
 *.key
 *.pem
 secrets.*.json
+
+# --- User defined and project specific ---------------------------------------
+*.dump.*
