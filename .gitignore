@@ -1,0 +1,57 @@
+# =============================================================================
+# Escape From Corporate - .gitignore
+# =============================================================================
+
+# --- Vendored build dependencies (re-bootstrapped on demand) -----------------
+# Downloaded locally by build/bootstrap/Install-BuildDependencies.ps1.
+# Never committed; CI re-fetches them for full local/remote parity.
+build/modules/
+tools/*
+!tools/.gitkeep
+
+# --- Build & test artifacts --------------------------------------------------
+artifacts/
+coverage.xml
+testResults.xml
+*.coverage
+*.coveragexml
+
+# --- Deployment staging ------------------------------------------------------
+artifacts/deploy/
+deploy-manifest.json
+
+# --- Runtime state & logs (produced by the efc engine itself) ----------------
+# These live under %LOCALAPPDATA% at runtime, but guard against accidental
+# capture if a developer points StateRoot into the repo during testing.
+state.json
+state.json.tmp
+state.json.bak
+logs/
+*.log
+
+# --- PowerShell / editor noise -----------------------------------------------
+*.ps1xml.bak
+*.tmp
+*.temp
+*~
+
+# --- OS noise ----------------------------------------------------------------
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+# --- IDE / tooling -----------------------------------------------------------
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.vs/
+*.user
+*.suo
+
+# --- Secrets (defensive; project should never contain any) -------------------
+*.pfx
+*.key
+*.pem
+secrets.*.json

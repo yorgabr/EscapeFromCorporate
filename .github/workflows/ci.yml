@@ -1,0 +1,79 @@
+name: efc-ci
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build & Test (Windows / PowerShell 5.1)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ------------------------------------------------------------------
+      # Self-bootstrap Invoke-Build into the project-local vendor path,
+      # then delegate ALL logic to efc.build.ps1 for local/CI parity.
+      # Uses Windows PowerShell 5.1 (shell: powershell) explicitly.
+      # ------------------------------------------------------------------
+      - name: Bootstrap dependencies (zero-admin, project-scoped)
+        shell: powershell
+        run: |
+          Set-StrictMode -Version Latest
+          $ErrorActionPreference = 'Stop'
+          .\build\bootstrap\Install-BuildDependencies.ps1 -Verbose
+
+      - name: Lint (PSScriptAnalyzer)
+        shell: powershell
+        run: |
+          $env:PSModulePath = (Resolve-Path .\build\modules).Path +
+            [System.IO.Path]::PathSeparator + $env:PSModulePath
+          Import-Module InvokeBuild -Force
+          Invoke-Build -File .\build\efc.build.ps1 Lint
+
+      - name: Test (Pester 5+)
+        shell: powershell
+        run: |
+          $env:PSModulePath = (Resolve-Path .\build\modules).Path +
+            [System.IO.Path]::PathSeparator + $env:PSModulePath
+          Import-Module InvokeBuild -Force
+          Invoke-Build -File .\build\efc.build.ps1 Test
+
+      - name: Package (module + zip artifact)
+        shell: powershell
+        run: |
+          $env:PSModulePath = (Resolve-Path .\build\modules).Path +
+            [System.IO.Path]::PathSeparator + $env:PSModulePath
+          Import-Module InvokeBuild -Force
+          Invoke-Build -File .\build\efc.build.ps1 Package
+
+      # ------------------------------------------------------------------
+      # Publish artifacts for inspection / release consumption.
+      # ------------------------------------------------------------------
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: artifacts/testResults.xml
+          if-no-files-found: warn
+
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-coverage
+          path: artifacts/coverage.xml
+          if-no-files-found: warn
+
+      - name: Upload package
+        uses: actions/upload-artifact@v4
+        with:
+          name: efc-module-package
+          path: artifacts/EscapeFromCorporate-*.zip
+          if-no-files-found: error

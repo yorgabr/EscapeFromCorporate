@@ -1,0 +1,708 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<helpItems schema="maml" xmlns="http://msh">
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+    <command:details>
+      <command:name>Clear-EfcState</command:name>
+      <command:verb>Clear</command:verb>
+      <command:noun>EfcState</command:noun>
+      <maml:description>
+        <maml:para>Removes the persisted efc job state (and optionally its logs).</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Deletes state.json and its sidecar files (.tmp, .bak). With -IncludeLogs, also purges the logs directory. Supports -WhatIf and -Confirm via ShouldProcess with High confirm impact. Use before starting an unrelated job or to reclaim space after a validated, deleted transfer.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Clear-EfcState</maml:name>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>StateRoot</maml:name>
+          <maml:description>
+            <maml:para>Override for the state directory. Defaults to $env:LOCALAPPDATA\EscapeFromCorporate.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>$env:LOCALAPPDATA\EscapeFromCorporate</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="nomeado" aliases="cf">
+          <maml:name>Confirm</maml:name>
+          <maml:description>
+            <maml:para>Prompts you for confirmation before running the cmdlet.</maml:para>
+          </maml:description>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="nomeado" aliases="none">
+          <maml:name>IncludeLogs</maml:name>
+          <maml:description>
+            <maml:para>Also remove the logs subdirectory under the state root.</maml:para>
+          </maml:description>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="nomeado" aliases="wi">
+          <maml:name>WhatIf</maml:name>
+          <maml:description>
+            <maml:para>Shows what would happen if the cmdlet runs. The cmdlet is not run.</maml:para>
+          </maml:description>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="nomeado" aliases="cf">
+        <maml:name>Confirm</maml:name>
+        <maml:description>
+          <maml:para>Prompts you for confirmation before running the cmdlet.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="nomeado" aliases="none">
+        <maml:name>IncludeLogs</maml:name>
+        <maml:description>
+          <maml:para>Also remove the logs subdirectory under the state root.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+        <maml:name>StateRoot</maml:name>
+        <maml:description>
+          <maml:para>Override for the state directory. Defaults to $env:LOCALAPPDATA\EscapeFromCorporate.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>$env:LOCALAPPDATA\EscapeFromCorporate</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="nomeado" aliases="wi">
+        <maml:name>WhatIf</maml:name>
+        <maml:description>
+          <maml:para>Shows what would happen if the cmdlet runs. The cmdlet is not run.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para></maml:para>
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para></maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para>Author  : Yorga Babuscan &lt;yorgabr@gmail.com&gt; License : Apache License 2.0</maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>--- Example 1: Remove the current state (with confirmation) ---</maml:title>
+        <dev:code>Clear-EfcState</dev:code>
+        <dev:remarks>
+          <maml:para>Removes the current state file after confirmation (ConfirmImpact is High).</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>------ Example 2: Purge state and logs without prompting ------</maml:title>
+        <dev:code>Clear-EfcState -IncludeLogs -Confirm:$false</dev:code>
+        <dev:remarks>
+          <maml:para>Removes state and the logs directory without prompting.</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>----------- Example 3: Preview what would be removed -----------</maml:title>
+        <dev:code>Clear-EfcState -IncludeLogs -WhatIf</dev:code>
+        <dev:remarks>
+          <maml:para>Shows which files would be removed without deleting anything.</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version:</maml:linkText>
+        <maml:uri>https://github.com/yorgabr/escape-from-corporate</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Invoke-EfcJob</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Get-EfcJobState</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Resume-EfcJob</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+    <command:details>
+      <command:name>Get-EfcJobState</command:name>
+      <command:verb>Get</command:verb>
+      <command:noun>EfcJobState</command:noun>
+      <maml:description>
+        <maml:para>Retrieves the current persisted efc job state for inspection.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Reads state.json from the state directory and returns it as an object. Useful for checking the progress of an interrupted job before deciding whether to resume. Returns $null when no job exists.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Get-EfcJobState</maml:name>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>StateRoot</maml:name>
+          <maml:description>
+            <maml:para>Override for the state directory. Defaults to $env:LOCALAPPDATA\EscapeFromCorporate.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>$env:LOCALAPPDATA\EscapeFromCorporate</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+        <maml:name>StateRoot</maml:name>
+        <maml:description>
+          <maml:para>Override for the state directory. Defaults to $env:LOCALAPPDATA\EscapeFromCorporate.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>$env:LOCALAPPDATA\EscapeFromCorporate</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para></maml:para>
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>System.Management.Automation.PSCustomObject</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>The persisted state object, or $null when no state exists.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para>Author  : Yorga Babuscan &lt;yorgabr@gmail.com&gt; License : Apache License 2.0</maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>-------------- Example 1: Inspect the current job --------------</maml:title>
+        <dev:code>Get-EfcJobState</dev:code>
+        <dev:remarks>
+          <maml:para>Returns the current job state object, or $null if no job exists.</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>------------ Example 2: Read completion percentage ------------</maml:title>
+        <dev:code>(Get-EfcJobState).metrics.percentComplete</dev:code>
+        <dev:remarks>
+          <maml:para>Inspects the completion percentage of the last known job.</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version:</maml:linkText>
+        <maml:uri>https://github.com/yorgabr/escape-from-corporate</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Invoke-EfcJob</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Resume-EfcJob</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Clear-EfcState</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+    <command:details>
+      <command:name>Invoke-EfcJob</command:name>
+      <command:verb>Invoke</command:verb>
+      <command:noun>EfcJob</command:noun>
+      <maml:description>
+        <maml:para>Securely copies a directory tree to a destination (local or UNC) with resumable, validated, progress-tracked transfers powered by robocopy.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Invoke-EfcJob is the primary controller for Escape From Corporate. It orchestrates the full lifecycle of a secure file dump:</maml:para>
+      <maml:para>1. Pre-flight validation and (optionally) a DryRun projection of pending work. 2. Idempotent resumption reconciliation against any persisted state.json. 3. Background robocopy spawn with file-based logging (no pipe deadlock). 4. A non-blocking watch loop rendering a live spinner, ETA, percentage, and throughput, while capturing P/R/A keystrokes for Pause/Resume/Abort. 5. Atomic checkpoint persistence to allow interrupted jobs to resume exactly. 6. Post-copy integrity validation and a clear "safe to delete" signal.</maml:para>
+      <maml:para>The utility is designed for locked-down corporate Windows 11 environments with no administrator privileges and no third-party sync tools; it relies solely on native PowerShell 5.1 and robocopy.exe.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Invoke-EfcJob</maml:name>
+        <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>Source</maml:name>
+          <maml:description>
+            <maml:para>Absolute path to the source directory to copy from.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="none">
+          <maml:name>Destination</maml:name>
+          <maml:description>
+            <maml:para>Destination directory. Supports local paths and UNC shares (\server\share\...).</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="nomeado" aliases="cf">
+          <maml:name>Confirm</maml:name>
+          <maml:description>
+            <maml:para>Prompts you for confirmation before running the cmdlet.</maml:para>
+          </maml:description>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="nomeado" aliases="none">
+          <maml:name>DryRun</maml:name>
+          <maml:description>
+            <maml:para>Enumerates the pending work via 'robocopy /L' without copying anything, printing the projected file count and total bytes. Useful for sizing and validation.</maml:para>
+          </maml:description>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="nomeado" aliases="none">
+          <maml:name>Force</maml:name>
+          <maml:description>
+            <maml:para>Discards any existing job state for this source/destination pair and starts a clean transfer. Without -Force, a matching incomplete job is resumed.</maml:para>
+          </maml:description>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="nomeado" aliases="none">
+          <maml:name>Restartable</maml:name>
+          <maml:description>
+            <maml:para>Enables robocopy restartable mode (/Z) for resilient resumption of large files over unreliable network links. Slightly slower but far more robust.</maml:para>
+          </maml:description>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="nomeado" aliases="none">
+          <maml:name>SampleHashCount</maml:name>
+          <maml:description>
+            <maml:para>Number of files to sample for SHA256 content verification during the post-copy integrity check. 0 (default) uses robocopy differential list validation only. Higher values add content-level assurance at the cost of hashing that many random files at both the source and destination.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>0</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="nomeado" aliases="none">
+          <maml:name>StateRoot</maml:name>
+          <maml:description>
+            <maml:para>Overrides the state directory. Defaults to $env:LOCALAPPDATA\EscapeFromCorporate. Primarily an injection seam for testing.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>$env:LOCALAPPDATA\EscapeFromCorporate</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="nomeado" aliases="wi">
+          <maml:name>WhatIf</maml:name>
+          <maml:description>
+            <maml:para>Shows what would happen if the cmdlet runs. The cmdlet is not run.</maml:para>
+          </maml:description>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="nomeado" aliases="cf">
+        <maml:name>Confirm</maml:name>
+        <maml:description>
+          <maml:para>Prompts you for confirmation before running the cmdlet.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="none">
+        <maml:name>Destination</maml:name>
+        <maml:description>
+          <maml:para>Destination directory. Supports local paths and UNC shares (\server\share\...).</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="nomeado" aliases="none">
+        <maml:name>DryRun</maml:name>
+        <maml:description>
+          <maml:para>Enumerates the pending work via 'robocopy /L' without copying anything, printing the projected file count and total bytes. Useful for sizing and validation.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="nomeado" aliases="none">
+        <maml:name>Force</maml:name>
+        <maml:description>
+          <maml:para>Discards any existing job state for this source/destination pair and starts a clean transfer. Without -Force, a matching incomplete job is resumed.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="nomeado" aliases="none">
+        <maml:name>Restartable</maml:name>
+        <maml:description>
+          <maml:para>Enables robocopy restartable mode (/Z) for resilient resumption of large files over unreliable network links. Slightly slower but far more robust.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="nomeado" aliases="none">
+        <maml:name>SampleHashCount</maml:name>
+        <maml:description>
+          <maml:para>Number of files to sample for SHA256 content verification during the post-copy integrity check. 0 (default) uses robocopy differential list validation only. Higher values add content-level assurance at the cost of hashing that many random files at both the source and destination.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>0</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+        <maml:name>Source</maml:name>
+        <maml:description>
+          <maml:para>Absolute path to the source directory to copy from.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="nomeado" aliases="none">
+        <maml:name>StateRoot</maml:name>
+        <maml:description>
+          <maml:para>Overrides the state directory. Defaults to $env:LOCALAPPDATA\EscapeFromCorporate. Primarily an injection seam for testing.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>$env:LOCALAPPDATA\EscapeFromCorporate</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="nomeado" aliases="wi">
+        <maml:name>WhatIf</maml:name>
+        <maml:description>
+          <maml:para>Shows what would happen if the cmdlet runs. The cmdlet is not run.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>Parameters are supplied explicitly.</maml:para>
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>System.Management.Automation.PSCustomObject</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>Summarizes the final job state (status, metrics, validation, safeToDeleteSource).</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para>Author  : Yorga Babuscan &lt;yorgabr@gmail.com&gt; License : Apache License 2.0</maml:para>
+        <maml:para>At runtime: press P to pause, R to resume, A to abort.</maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>----------- Example 1: Basic transfer to a NAS share -----------</maml:title>
+        <dev:code>Invoke-EfcJob -Source 'C:\Users\me\CorporateData' -Destination '\\HOME-NAS\Backup\Dump'</dev:code>
+        <dev:remarks>
+          <maml:para>Starts (or resumes) a secure copy to the home NAS, rendering live progress and accepting P/R/A keystrokes at runtime.</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------- Example 2: Project the workload before copying --------</maml:title>
+        <dev:code>Invoke-EfcJob -Source 'C:\Data' -Destination 'D:\Backup' -DryRun</dev:code>
+        <dev:remarks>
+          <maml:para>Projects how many files and bytes would be copied, without transferring anything.</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>--------------- Example 3: Force a clean restart ---------------</maml:title>
+        <dev:code>Invoke-EfcJob -Source 'C:\Data' -Destination '\\NAS\Dump' -Force</dev:code>
+        <dev:remarks>
+          <maml:para>Ignores any prior state and starts a completely fresh transfer.</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>Example 4: Restartable mode over a flaky link (using the alias)</maml:title>
+        <dev:code>efc -Source 'C:\Data' -Destination '\\NAS\Dump' -Restartable</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>Example 5: High-assurance transfer with sampled content verification</maml:title>
+        <dev:code>Invoke-EfcJob -Source 'C:\Legal\Case' -Destination '\\NAS\Vault' -SampleHashCount 200</dev:code>
+        <dev:remarks>
+          <maml:para>After copying, verifies 200 randomly selected files by SHA256 at both source and destination. Any content mismatch fails validation and blocks the safe-to-delete signal.</maml:para>
+          <maml:para>Uses the 'efc' alias with restartable mode (robocopy /Z) for large files over an unreliable network.</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version:</maml:linkText>
+        <maml:uri>https://github.com/yorgabr/escape-from-corporate</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Get-EfcJobState</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Resume-EfcJob</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Clear-EfcState</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Project home</maml:linkText>
+        <maml:uri>https://github.com/yorgabr/escape-from-corporate</maml:uri>
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+    <command:details>
+      <command:name>Resume-EfcJob</command:name>
+      <command:verb>Resume</command:verb>
+      <command:noun>EfcJob</command:noun>
+      <maml:description>
+        <maml:para>Resumes an interrupted efc job from its persisted state.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Convenience wrapper that reads the persisted state and re-invokes Invoke-EfcJob using the stored source/destination signatures, continuing from the last checkpoint offset. Fails if no resumable state exists. If the matching job is already completed, it reports so and returns the state without further work.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Resume-EfcJob</maml:name>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>StateRoot</maml:name>
+          <maml:description>
+            <maml:para>Override for the state directory. Defaults to $env:LOCALAPPDATA\EscapeFromCorporate.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>$env:LOCALAPPDATA\EscapeFromCorporate</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+        <maml:name>StateRoot</maml:name>
+        <maml:description>
+          <maml:para>Override for the state directory. Defaults to $env:LOCALAPPDATA\EscapeFromCorporate.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>$env:LOCALAPPDATA\EscapeFromCorporate</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para></maml:para>
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>System.Management.Automation.PSCustomObject</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>The final job state after resumption.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para>Author  : Yorga Babuscan &lt;yorgabr@gmail.com&gt; License : Apache License 2.0</maml:para>
+        <maml:para>Throws when no persisted job state exists.</maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>---- Example 1: Resume the most recent interrupted transfer ----</maml:title>
+        <dev:code>Resume-EfcJob</dev:code>
+        <dev:remarks>
+          <maml:para>Reads the persisted state and continues the transfer from the last checkpoint.</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-- Example 2: Resume a job stored in a custom state location --</maml:title>
+        <dev:code>Resume-EfcJob -StateRoot 'D:\efc-state'</dev:code>
+        <dev:remarks>
+          <maml:para>Resumes using a non-default state directory (useful for isolated or test setups).</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version:</maml:linkText>
+        <maml:uri>https://github.com/yorgabr/escape-from-corporate</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Invoke-EfcJob</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Get-EfcJobState</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Clear-EfcState</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+</helpItems>

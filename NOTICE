@@ -1,0 +1,35 @@
+Escape From Corporate (efc)
+Copyright 2025 Yorga Babuscan <yorgabr@gmail.com>
+
+This product includes software developed by Yorga Babuscan.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+------------------------------------------------------------------------
+Acknowledgements
+------------------------------------------------------------------------
+
+This project relies on the following components at development/build time
+only. They are NOT redistributed as part of the packaged module; they are
+retrieved locally into the project scope by the build bootstrapper.
+
+  - Pester
+      https://github.com/pester/Pester
+      Licensed under the Apache License, Version 2.0.
+
+  - PSScriptAnalyzer
+      https://github.com/PowerShell/PSScriptAnalyzer
+      Licensed under the MIT License.
+
+  - Invoke-Build
+      https://github.com/nightroman/Invoke-Build
+      Licensed under the Apache License, Version 2.0.
+
+The runtime engine relies exclusively on native Windows components
+(Windows PowerShell 5.1 and robocopy.exe), which are governed by the
+Microsoft Windows operating system license and are not redistributed
+by this project.
