@@ -12,9 +12,22 @@ Securely copies a directory tree to a destination (local or UNC) with resumable,
 
 ## SYNTAX
 
+### Run (Default)
 ```
 Invoke-EfcJob [-Source] <String> [-Destination] <String> [-Force] [-DryRun] [-Restartable]
  [[-SampleHashCount] <Int32>] [[-StateRoot] <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
+```
+
+### Help
+```
+Invoke-EfcJob [-Force] [-DryRun] [-Restartable] [[-SampleHashCount] <Int32>] [[-StateRoot] <String>] [-Help]
+ [-WhatIf] [-Confirm] [<CommonParameters>]
+```
+
+### Version
+```
+Invoke-EfcJob [-Force] [-DryRun] [-Restartable] [[-SampleHashCount] <Int32>] [[-StateRoot] <String>] [-Version]
+ [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -90,7 +103,7 @@ Destination directory. Supports local paths and UNC shares (\\server\share\...).
 
 ```yaml
 Type: String
-Parameter Sets: (All)
+Parameter Sets: Run
 Aliases:
 
 Required: True
@@ -165,7 +178,7 @@ Absolute path to the source directory to copy from.
 
 ```yaml
 Type: String
-Parameter Sets: (All)
+Parameter Sets: Run
 Aliases:
 
 Required: True
@@ -200,6 +213,36 @@ Aliases: wi
 
 Required: False
 Position: Nomeado
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Help
+{{ Fill Help Description }}
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Help
+Aliases: h
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Version
+{{ Fill Version Description }}
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Version
+Aliases: v
+
+Required: True
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
