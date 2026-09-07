@@ -57,4 +57,4 @@ $RECYCLE.BIN/
 secrets.*.json
 
 # --- User defined and project specific ---------------------------------------
-*.dump.*
+**.dump.*
