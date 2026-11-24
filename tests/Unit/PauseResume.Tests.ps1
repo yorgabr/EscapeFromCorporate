@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 #Requires -Modules @{ ModuleName = 'Pester'; ModuleVersion = '5.5.0' }
 
 BeforeAll {
@@ -57,7 +57,7 @@ Describe 'Watch loop pause/resume state transitions' {
             New-Item -ItemType Directory -Path $root -Force | Out-Null
             $log  = Join-Path $root 'job.log'
             [System.IO.File]::WriteAllText($log, "New File `t500`tC:\s\a.txt`n",
-                [System.Text.UTF8Encoding]::new($false))
+                [System.Text.UnicodeEncoding]::new($false, $true))
 
             $state = New-EfcState -SourcePath 'C:\s' -DestinationPath 'C:\d' -LogPath $log
             $state.metrics.totalBytesExpected = 500
@@ -105,7 +105,7 @@ Describe 'Watch loop pause/resume state transitions' {
             New-Item -ItemType Directory -Path $root -Force | Out-Null
             $log  = Join-Path $root 'job.log'
             [System.IO.File]::WriteAllText($log, "New File `t10`tC:\s\a.txt`n",
-                [System.Text.UTF8Encoding]::new($false))
+                [System.Text.UnicodeEncoding]::new($false, $true))
 
             $state = New-EfcState -SourcePath 'C:\s' -DestinationPath 'C:\d' -LogPath $log
             $state.metrics.totalBytesExpected = 10
@@ -145,7 +145,7 @@ Describe 'Deterministic drain on process exit' {
             # Start with ONE line; the process reports exited immediately, but the
             # log grows on the next drain iteration (simulating a late flush).
             [System.IO.File]::WriteAllText($log, "New File `t100`tC:\s\a.txt`n",
-                [System.Text.UTF8Encoding]::new($false))
+                [System.Text.UnicodeEncoding]::new($false, $true))
 
             $state = New-EfcState -SourcePath 'C:\s' -DestinationPath 'C:\d' -LogPath $log
             $state.metrics.totalBytesExpected = 300
@@ -164,7 +164,7 @@ Describe 'Deterministic drain on process exit' {
                 if (-not $script:FlushDone) {
                     [System.IO.File]::AppendAllText($log,
                         "New File `t100`tC:\s\b.txt`nNew File `t100`tC:\s\c.txt`n",
-                        [System.Text.UTF8Encoding]::new($false))
+                        [System.Text.UnicodeEncoding]::new($false, $true))
                     $script:FlushDone = $true
                 }
             } -ParameterFilter { $Milliseconds -eq 25 }
@@ -178,3 +178,4 @@ Describe 'Deterministic drain on process exit' {
         }
     }
 }
+

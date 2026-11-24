@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 #Requires -Modules @{ ModuleName = 'Pester'; ModuleVersion = '5.5.0' }
 
 Describe 'Format-EfcBytes' {
@@ -48,7 +48,7 @@ Describe 'Watch loop metrics reconciliation' {
             $content = "New File `t1000`tC:\s\a.txt`n" +
                        "New File `t2000`tC:\s\b.txt`n"
             [System.IO.File]::WriteAllText($log, $content,
-                [System.Text.UTF8Encoding]::new($false))
+                [System.Text.UnicodeEncoding]::new($false, $true))
 
             $state = New-EfcState -SourcePath 'C:\s' -DestinationPath 'C:\d' -LogPath $log
             $state.metrics.totalBytesExpected = 3000

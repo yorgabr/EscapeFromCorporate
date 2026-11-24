@@ -14,20 +14,20 @@ Securely copies a directory tree to a destination (local or UNC) with resumable,
 
 ### Run (Default)
 ```
-Invoke-EfcJob [-Source] <String> [-Destination] <String> [-Force] [-DryRun] [-Restartable]
+Invoke-EfcJob [-Source] <String> [-Destination] <String> [-Force] [-DryRun] [-Restartable] [-AllowSameDrive]
  [[-SampleHashCount] <Int32>] [[-StateRoot] <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### Help
 ```
-Invoke-EfcJob [-Force] [-DryRun] [-Restartable] [[-SampleHashCount] <Int32>] [[-StateRoot] <String>] [-Help]
- [-WhatIf] [-Confirm] [<CommonParameters>]
+Invoke-EfcJob [-Force] [-DryRun] [-Restartable] [-AllowSameDrive] [[-SampleHashCount] <Int32>]
+ [[-StateRoot] <String>] [-Help] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### Version
 ```
-Invoke-EfcJob [-Force] [-DryRun] [-Restartable] [[-SampleHashCount] <Int32>] [[-StateRoot] <String>] [-Version]
- [-WhatIf] [-Confirm] [<CommonParameters>]
+Invoke-EfcJob [-Force] [-DryRun] [-Restartable] [-AllowSameDrive] [[-SampleHashCount] <Int32>]
+ [[-StateRoot] <String>] [-Version] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -242,6 +242,21 @@ Parameter Sets: Version
 Aliases: v
 
 Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -AllowSameDrive
+{{ Fill AllowSameDrive Description }}
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
 Position: Named
 Default value: None
 Accept pipeline input: False

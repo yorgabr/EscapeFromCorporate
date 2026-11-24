@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 #Requires -Modules @{ ModuleName = 'Pester'; ModuleVersion = '5.5.0' }
 
 BeforeAll {
@@ -53,7 +53,7 @@ Describe 'End-to-end job orchestration (fully mocked SO/process)' {
                            "New File `t2000`tC:\s\b.txt`n"
                 $dir = Split-Path -Parent $logPath
                 if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }
-                [System.IO.File]::WriteAllText($logPath, $content, [System.Text.UTF8Encoding]::new($false))
+                [System.IO.File]::WriteAllText($logPath, $content, [System.Text.UnicodeEncoding]::new($false, $true))
 
                 $proc = [pscustomobject]@{ HasExited = $true; ExitCode = 1 }
                 Add-Member -InputObject $proc -MemberType ScriptMethod -Name Kill -Value {}
@@ -110,7 +110,7 @@ Describe 'End-to-end job orchestration (fully mocked SO/process)' {
                 $dir = Split-Path -Parent $LogPath
                 if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }
                 [System.IO.File]::WriteAllText($LogPath, "New File `t1000`tC:\s\a.txt`n",
-                    [System.Text.UTF8Encoding]::new($false))
+                    [System.Text.UnicodeEncoding]::new($false, $true))
                 $proc = [pscustomobject]@{ HasExited = $true; ExitCode = 1 }
                 Add-Member -InputObject $proc -MemberType ScriptMethod -Name Kill -Value {}
                 [pscustomobject]@{
@@ -143,7 +143,7 @@ Describe 'End-to-end job orchestration (fully mocked SO/process)' {
                 $dir = Split-Path -Parent $LogPath
                 if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }
                 [System.IO.File]::WriteAllText($LogPath, "New File `t1000`tC:\s\a.txt`n",
-                    [System.Text.UTF8Encoding]::new($false))
+                    [System.Text.UnicodeEncoding]::new($false, $true))
                 $proc = [pscustomobject]@{ HasExited = $true; ExitCode = 1 }
                 Add-Member -InputObject $proc -MemberType ScriptMethod -Name Kill -Value {}
                 [pscustomobject]@{
@@ -191,7 +191,7 @@ Describe 'End-to-end job orchestration (fully mocked SO/process)' {
                 $dir = Split-Path -Parent $LogPath
                 if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }
                 [System.IO.File]::WriteAllText($LogPath, "New File `t1000`tC:\s\a.txt`n",
-                    [System.Text.UTF8Encoding]::new($false))
+                    [System.Text.UnicodeEncoding]::new($false, $true))
                 $proc = [pscustomobject]@{ HasExited = $true; ExitCode = 1 }
                 Add-Member -InputObject $proc -MemberType ScriptMethod -Name Kill -Value {}
                 [pscustomobject]@{
@@ -234,7 +234,7 @@ Describe 'End-to-end job orchestration (fully mocked SO/process)' {
                 $dir = Split-Path -Parent $LogPath
                 if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }
                 [System.IO.File]::WriteAllText($LogPath, "New File `t1000`tC:\s\a.txt`n",
-                    [System.Text.UTF8Encoding]::new($false))
+                    [System.Text.UnicodeEncoding]::new($false, $true))
                 $proc = [pscustomobject]@{ HasExited = $true; ExitCode = 1 }
                 Add-Member -InputObject $proc -MemberType ScriptMethod -Name Kill -Value {}
                 [pscustomobject]@{
@@ -271,7 +271,7 @@ Describe 'End-to-end job orchestration (fully mocked SO/process)' {
                 $dir = Split-Path -Parent $LogPath
                 if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }
                 [System.IO.File]::WriteAllText($LogPath, "New File `t1000`tC:\s\a.txt`n",
-                    [System.Text.UTF8Encoding]::new($false))
+                    [System.Text.UnicodeEncoding]::new($false, $true))
                 $proc = [pscustomobject]@{ HasExited = $true; ExitCode = 1 }
                 Add-Member -InputObject $proc -MemberType ScriptMethod -Name Kill -Value {}
                 [pscustomobject]@{
@@ -312,12 +312,12 @@ Describe 'Invoke-EfcJob -Help / -Version' {
     }
 }
 
-Describe 'Test-EfcCopyIntegrity (differential validation)' {
+Describe 'Test-EfcCopyIntegrity (verdict from the robocopy exit code)' {
     BeforeAll { Import-Module $script:ModulePath -Force }
 
-    It 'reports zero mismatches when the list pass is empty' {
+    It 'reports zero mismatches when the list pass is clean (exit 0)' {
         InModuleScope EscapeFromCorporate {
-            $runner = { param($s,$d) @('', '   ', '------ banner ------') }
+            $runner = { param($s,$d) [pscustomobject]@{ ExitCode = 0; Lines = @('', '   ', '------ banner ------') } }
             $r = Test-EfcCopyIntegrity -SourcePath 'C:\s' -DestinationPath 'C:\d' -RobocopyRunner $runner
             $r.MismatchCount | Should -Be 0
         }
@@ -327,10 +327,64 @@ Describe 'Test-EfcCopyIntegrity (differential validation)' {
         InModuleScope EscapeFromCorporate {
             $runner = {
                 param($s,$d)
-                @("New File `t100`tC:\s\pending1.txt", "New File `t200`tC:\s\pending2.txt")
+                [pscustomobject]@{
+                    ExitCode = 1
+                    Lines    = @("       100        C:\s\pending1.txt", "       200        C:\s\pending2.txt")
+                }
             }
             $r = Test-EfcCopyIntegrity -SourcePath 'C:\s' -DestinationPath 'C:\d' -RobocopyRunner $runner
             $r.MismatchCount | Should -Be 2
+            $r.PendingBytes  | Should -Be 300
+        }
+    }
+
+    It 'fails closed when the exit code is divergent but nothing could be parsed' {
+        InModuleScope EscapeFromCorporate {
+            $runner = { param($s,$d) [pscustomobject]@{ ExitCode = 1; Lines = @('unrecognised output') } }
+            (Test-EfcCopyIntegrity -SourcePath 'C:\s' -DestinationPath 'C:\d' -RobocopyRunner $runner).MismatchCount |
+                Should -BeGreaterOrEqual 1
+        }
+    }
+}
+
+Describe 'Invoke-EfcJob keeps the Aborted status' {
+
+    It 'skips validation and never reports safe-to-delete after an abort' {
+        $root = Join-Path $TestDrive ([guid]::NewGuid().ToString())
+        $src  = Join-Path $root 'src'
+        $dst  = Join-Path $root 'dst'
+        New-Item -ItemType Directory -Path $src, $dst -Force | Out-Null
+
+        InModuleScope EscapeFromCorporate -Parameters @{ Src = $src; Dst = $dst; Root = $root } {
+            param($Src, $Dst, $Root)
+
+            Mock Test-EfcPreflight {
+                [pscustomobject]@{ IsValid = $true; Messages = @(); TotalFiles = 1; TotalBytes = 1000; TotalDirs = 0 }
+            }
+            Mock Connect-Robocopy {
+                $dir = Split-Path -Parent $LogPath
+                if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }
+                [System.IO.File]::WriteAllText($LogPath, '', [System.Text.UnicodeEncoding]::new($false, $true))
+                $proc = [pscustomobject]@{ HasExited = $true; ExitCode = -1 }
+                [pscustomobject]@{
+                    Process = $proc; ProcessId = 1; LogPath = $LogPath
+                    CommandLine = 'x'; Flags = @(); StartedUtc = [datetime]::UtcNow.ToString('o')
+                }
+            }
+            # What a user abort leaves behind: status Aborted and a killed process exit code.
+            Mock Watch-RobocopyProcess {
+                $State.status = 'Aborted'
+                $State.robocopy.exitCode = -1
+                $State
+            }
+            Mock Test-EfcInteractiveHost { $false }
+            Mock Test-EfcCopyIntegrity { throw 'validation must not run after an abort' }
+
+            $final = Invoke-EfcJob -Source $Src -Destination $Dst -StateRoot $Root -AllowSameDrive -Confirm:$false
+
+            $final.status                        | Should -Be 'Aborted'
+            $final.validation.safeToDeleteSource | Should -BeFalse
+            Should -Invoke Test-EfcCopyIntegrity -Times 0 -Exactly
         }
     }
 }

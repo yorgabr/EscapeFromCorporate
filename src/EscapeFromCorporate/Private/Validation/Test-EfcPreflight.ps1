@@ -1,12 +1,13 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
     Validates job feasibility and computes baseline file/byte counts.
 
 .DESCRIPTION
     Runs a series of guards - source existence, destination root
-    reachability, and source/destination self-collision - and, when
-    -Enumerate is set, executes 'robocopy /L /E /BYTES /NJH /NJS /NC /TS' to
+    reachability, source/destination self-collision, and source/destination on
+    the same drive or share - and, when
+    -Enumerate is set, executes 'robocopy /L /E /BYTES /NJH /NJS /NC /FP /NP /XJ' to
     enumerate the pending work WITHOUT copying. The parsed totals seed the
     progress state so the UI can render an accurate ETA from the very first
     frame.
@@ -29,6 +30,18 @@
 .PARAMETER Enumerate
     When set, performs the list-only enumeration and returns the projected totals.
 
+.PARAMETER AllowSameDrive
+    By default a destination on the same drive (or network share) as the source is
+    refused: that is not an off-box copy and protects nothing against losing the
+    drive. Subst drives, mapped drives, junctions and symlinks are resolved first,
+    so aliases cannot hide it. The override does NOT disable the self-copy guard:
+    a destination that turns out to be the source (or inside it) after resolving
+    aliases is still refused.
+
+.PARAMETER PathResolver
+    Injectable resolver for guard 4: { param($Path) -> resolved path }. Defaults to
+    Resolve-EfcFinalPath. Enables tests without real aliases.
+
 .PARAMETER RobocopyRunner
     Injectable script block that executes a robocopy list pass and returns its
     stdout lines. Enables mocking. Signature: { param($Source,$Dest) -> string[] }
@@ -47,6 +60,8 @@ function Test-EfcPreflight {
         [Parameter(Mandatory)] [string] $SourcePath,
         [Parameter(Mandatory)] [string] $DestinationPath,
         [switch] $Enumerate,
+        [switch] $AllowSameDrive,
+        [scriptblock] $PathResolver,
         [scriptblock] $RobocopyRunner
     )
 
@@ -96,14 +111,61 @@ function Test-EfcPreflight {
     # the source.
     $sourceSig = Get-EfcSignature -Path $SourcePath
     $destSig   = Get-EfcSignature -Path $DestinationPath
+    $collision = $false
 
     if ($sourceSig.NormalizedPath -eq $destSig.NormalizedPath) {
         $isValid = $false
+        $collision = $true
         $messages.Add("Source and destination resolve to the same path ('$($sourceSig.NormalizedPath)'). Refusing to proceed.")
     }
     elseif ($destSig.NormalizedPath.StartsWith("$($sourceSig.NormalizedPath)\", [System.StringComparison]::OrdinalIgnoreCase)) {
         $isValid = $false
+        $collision = $true
         $messages.Add("Destination is nested inside source ('$($destSig.NormalizedPath)' is under '$($sourceSig.NormalizedPath)'). This would copy the source into itself. Refusing to proceed.")
+    }
+
+    # --- Guard 4: source and destination on the same drive / share -------------
+    # A copy inside one drive is not an off-box copy. Both paths are resolved
+    # through subst drives, mapped drives, junctions and symlinks first. Only an
+    # EXPLICIT match is refused; paths whose drive cannot be determined fall
+    # through to the other guards.
+    if (-not [string]::IsNullOrWhiteSpace($SourcePath) -and
+        -not [string]::IsNullOrWhiteSpace($DestinationPath)) {
+
+        $driveArgs = @{ SourcePath = $SourcePath; DestinationPath = $DestinationPath }
+        if ($PathResolver) { $driveArgs['PathResolver'] = $PathResolver }
+        $drive = Test-EfcSameDrive @driveArgs
+
+        if ($drive.Same) {
+            $aliasNote = ''
+            if ($drive.SourceAliased) {
+                $aliasNote += " Source '$SourcePath' resolves to '$($drive.SourceFinal)'."
+            }
+            if ($drive.DestinationAliased) {
+                $aliasNote += " Destination '$DestinationPath' resolves to '$($drive.DestinationFinal)'."
+            }
+
+            if (-not $AllowSameDrive) {
+                $isValid = $false
+                $messages.Add("Source and destination are on the same drive ('$($drive.SourceKey)').$aliasNote Copying within one drive does not protect against losing it. Use another drive or a network share, or pass -AllowSameDrive to override.")
+            }
+
+            # The override never disables the self-copy protection: aliases can hide
+            # a destination that is the source (or inside it) from guard 3.
+            if (-not $collision) {
+                $resolvedSource = $drive.SourceFinal.TrimEnd('\')
+                $resolvedDest   = $drive.DestinationFinal.TrimEnd('\')
+
+                if ($resolvedSource -eq $resolvedDest) {
+                    $isValid = $false
+                    $messages.Add("Source and destination resolve to the same folder ('$resolvedSource') once aliases are resolved.$aliasNote Refusing to proceed.")
+                }
+                elseif ($resolvedDest.StartsWith("$resolvedSource\", [System.StringComparison]::OrdinalIgnoreCase)) {
+                    $isValid = $false
+                    $messages.Add("Destination is nested inside source once aliases are resolved ('$resolvedDest' is under '$resolvedSource').$aliasNote This would copy the source into itself. Refusing to proceed.")
+                }
+            }
+        }
     }
 
     $totalFiles = [long]0
@@ -118,7 +180,7 @@ function Test-EfcPreflight {
                 param($Source, $Dest)
                 $robo = Join-Path $env:SystemRoot 'System32\robocopy.exe'
                 # /L = list only (no copy). Same lean flags as the real transfer.
-                & $robo $Source $Dest /L /E /BYTES /NJH /NJS /NC /TS /R:0 /W:0 2>&1
+                & $robo $Source $Dest /L /E /BYTES /NJH /NJS /NC /FP /NP /XJ /R:0 /W:0 2>&1
             }
         }
 
@@ -150,3 +212,4 @@ function Test-EfcPreflight {
         TotalDirs  = $totalDirs
     }
 }
+

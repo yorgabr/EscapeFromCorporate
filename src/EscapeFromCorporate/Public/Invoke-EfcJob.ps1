@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
     Securely copies a directory tree to a destination (local or UNC) with resumable,
@@ -58,6 +58,12 @@
     Reports the projected file count, total bytes, and (when Source has no
     trailing separator) the rsync-resolved effective destination, without
     copying anything.
+
+.PARAMETER AllowSameDrive
+    Allows a destination on the same drive (or network share) as the source. By
+    default efc refuses it, because a copy within one drive does not protect
+    against losing that drive. Aliases (subst, mapped drives, junctions, symlinks)
+    are resolved before comparing. Copying a folder into itself stays refused.
 
 .PARAMETER Restartable
     Enables robocopy restartable mode (/Z) for resilient resumption of large files
@@ -166,6 +172,8 @@ function Invoke-EfcJob {
 
         [switch] $Restartable,
 
+        [switch] $AllowSameDrive,
+
         # Number of files to sample for SHA256 content verification during the
         # post-copy integrity check. 0 (default) uses robocopy differential list
         # validation only. Higher values add content-level assurance at the cost
@@ -216,7 +224,7 @@ function Invoke-EfcJob {
         # Enumeration always runs, independent of -DryRun: see the note on
         # Test-EfcPreflight's -Enumerate parameter for why this matters.
         Write-Verbose 'Running pre-flight checks.'
-        $preflight = Test-EfcPreflight -SourcePath $Source -DestinationPath $effectiveDestination -Enumerate
+        $preflight = Test-EfcPreflight -SourcePath $Source -DestinationPath $effectiveDestination -Enumerate -AllowSameDrive:$AllowSameDrive
 
         if (-not $preflight.IsValid) {
             foreach ($m in $preflight.Messages) { Write-Error $m }
@@ -324,7 +332,14 @@ function Invoke-EfcJob {
             -StateRoot $StateRoot
 
         # --- 6. Post-copy validation -------------------------------------------
-        if ($final.robocopy.exitCode -lt 8) {
+        $exitCode = $final.robocopy.exitCode
+        if ($final.status -eq 'Aborted') {
+            # A killed process reports a negative/odd exit code: never let it overwrite
+            # the Aborted status or trigger a validation of a partial copy.
+            Write-Verbose 'Transfer aborted or interrupted; skipping validation.'
+            $final.validation.safeToDeleteSource = $false
+        }
+        elseif ($null -ne $exitCode -and $exitCode -ge 0 -and $exitCode -lt 8) {
             Write-Verbose "Robocopy exit code indicates success; validating integrity."
             if ($SampleHashCount -gt 0) {
                 Write-Verbose "Integrity check will sample $SampleHashCount file(s) for SHA256 verification."
@@ -362,3 +377,4 @@ function Invoke-EfcJob {
         return $final
     }
 }
+

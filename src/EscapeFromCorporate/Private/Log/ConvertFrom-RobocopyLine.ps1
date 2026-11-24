@@ -1,38 +1,45 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
-    Parses a single robocopy log line into a structured entry.
+    Parses a single robocopy log line into a structured entry (locale-neutral).
 
 .DESCRIPTION
-    With flags /BYTES /NC /TS /NP, per-file lines follow a predictable shape:
-        <TAB><timestamp><whitespace><size><whitespace><fullpath>
-    Directory lines and error lines carry distinct signatures. This parser uses
-    a compiled regex to classify each line and extract metrics with minimal
-    allocation overhead across hundreds of thousands of lines.
+    Designed against REAL robocopy output captured on pt-BR Windows (see
+    tests/Unit/RobocopyRealOutput.Tests.ps1). The recommended flag set is
+        /BYTES /NC /NDL /FP /NP /NJH /NJS
+    which yields only per-file lines of the shape
+        <ws><size><ws><full path>
+    and error lines of the shape
+        [yyyy/MM/dd HH:mm:ss ]<LOCALIZED WORD> <n> (0x<hex>) <detail>
+
+    The parser never depends on localized words:
+      * File vs Dir is decided by the path, not by a label: a directory header
+        ("<count> <path>\") always ends with a backslash, a file path never does.
+      * An optional leading label ("New File", "Novo Arquivo", "*EXTRA File"...)
+        is tolerated and ignored, so default-flag output and legacy fixtures
+        keep working.
+      * Errors are anchored on the "<code> (0x<hex>)" pair, not on the word ERROR.
+
+    NOTE: lines produced with /TS and without /FP ("<size> <date> <relative
+    name>") are intentionally NOT recognised: the directory context is missing,
+    so they cannot be turned into a path. Do not pass /TS.
 
 .PARAMETER Line
     A single, complete log line (no trailing newline).
 
 .OUTPUTS
-    PSCustomObject with: Type, Size, Path, TimestampRaw  (or $null if unparseable).
+    PSCustomObject: Type (File|Dir|Error), Action, Size, Path, TimestampRaw,
+    Code.  $null when the line is not recognised.
 
 .NOTES
     Author  : Yorga Babuscan <yorgabr@gmail.com>
     License : Apache License 2.0
 #>
 
-# --- Script-scoped regex cache: eagerly initialized at import time ---------
-# Set-StrictMode -Version Latest is in effect at the module's defining scope
-# (EscapeFromCorporate.psm1). Under that mode, reading a $script: variable
-# that has never been assigned throws "A variável '...' não pode ser
-# recuperada porque ainda não foi definida" - even inside `if (-not $var)`.
-# $null is NOT an acceptable "unset" state; the variable must exist. These
-# four lines run once, when this file is dot-sourced into module scope, so
-# the lazy-compile check below (`if (-not $script:EfcRxNewFile)`) is safe.
-$script:EfcRxNewFile   = $null
-$script:EfcRxSizedFile = $null
-$script:EfcRxDir       = $null
-$script:EfcRxError     = $null
+# Eagerly initialised: the module runs under Set-StrictMode -Version Latest, and
+# reading a never-assigned $script: variable throws even inside `if (-not $x)`.
+$script:EfcRxEntry = $null
+$script:EfcRxError = $null
 
 function ConvertFrom-RobocopyLine {
     [CmdletBinding()]
@@ -43,77 +50,50 @@ function ConvertFrom-RobocopyLine {
         [string] $Line
     )
 
-    # --- Compiled regexes (module-scoped cache) --------------------------------
-    if (-not $script:EfcRxNewFile) {
+    if (-not $script:EfcRxEntry) {
         $opts = [System.Text.RegularExpressions.RegexOptions]::Compiled -bor
                 [System.Text.RegularExpressions.RegexOptions]::CultureInvariant
 
-        # New file: optional leading tabs, action label, size (bytes), path.
-        # Path uses a possessive-style bounded match to avoid catastrophic
-        # backtracking: consume everything up to trailing whitespace greedily,
-        # then trim in code rather than with a lazy quantifier.
-        $script:EfcRxNewFile = [regex]::new(
-            '^\s*(?<action>New File|Newer|Older|Changed|\*EXTRA File)\s+(?<size>\d{1,19})\s+(?<path>\S.{0,4096})$',
+        # [label] <size|count> <absolute path>. The label (if any) starts with a
+        # non-digit and contains no digits. Path = drive-letter or UNC root.
+        $script:EfcRxEntry = [regex]::new(
+            '^\s*(?:(?<label>[^\d\s][^\d]*?)\s+)?(?<num>\d{1,19})\s+(?<path>(?:[A-Za-z]:\\|\\\\)[^\r\n]*?)\s*$',
             $opts)
 
-        # Plain per-file line with /NC: "\t   <size>\t<path>" (no action label).
-        $script:EfcRxSizedFile = [regex]::new(
-            '^\s+(?<size>\d+)\s+(?<path>[A-Za-z]:\\.+|\\\\.+?\\.+)\s*$',
-            $opts)
-
-        # Directory marker: "\t   New Dir          N\t<path>" or similar.
-        $script:EfcRxDir = [regex]::new(
-            '^\s*New Dir\s+(?<count>\d+)?\s*(?<path>.+?)\s*$',
-            $opts)
-
-        # Error line: "ERROR n (0x0000000n) ..." 
+        # [timestamp] <word> <code> (0x<hex>) <detail>   - locale-neutral.
         $script:EfcRxError = [regex]::new(
-            '^\s*ERROR\s+(?<code>\d+)\s+\((?<hex>0x[0-9A-Fa-f]+)\)\s*(?<detail>.+)?$',
+            '^\s*(?:\d{4}/\d{2}/\d{2}\s+\d{2}:\d{2}:\d{2}\s+)?(?<word>[^\d\s]\S*)\s+(?<code>\d+)\s+\((?<hex>0x[0-9A-Fa-f]+)\)\s*(?<detail>.*?)\s*$',
             $opts)
     }
 
     if ([string]::IsNullOrWhiteSpace($Line)) { return $null }
 
-    # --- Defensive length guard against catastrophic regex backtracking --------
-    # Real robocopy lines with /BYTES are bounded; a pathologically long line is
-    # either corruption or an attack surface. Windows MAX_PATH-era paths plus the
-    # action label and size fit comfortably under 4096 chars. Anything longer is
-    # rejected as unparseable rather than risking exponential backtracking.
-    if ($Line.Length -gt 4096) {
-        return $null
-    }
+    # Bounded input: protects against pathological lines (corruption/attack).
+    if ($Line.Length -gt 4096) { return $null }
 
-    # --- Classification order: cheapest / most frequent first ------------------
-    $m = $script:EfcRxNewFile.Match($Line)
+    $m = $script:EfcRxEntry.Match($Line)
     if ($m.Success) {
+        $path  = $m.Groups['path'].Value
+        $label = if ($m.Groups['label'].Success) { $m.Groups['label'].Value.Trim() } else { '' }
+
+        if ($path.EndsWith('\')) {
+            return [pscustomobject]@{
+                Type         = 'Dir'
+                Action       = 'NewDir'
+                Size         = [long]0
+                Path         = $path
+                TimestampRaw = $null
+                Code         = $null
+            }
+        }
+
         return [pscustomobject]@{
             Type         = 'File'
-            Action       = $m.Groups['action'].Value
-            Size         = [long]$m.Groups['size'].Value
-            Path         = $m.Groups['path'].Value.TrimEnd()   # trim in code, not regex
+            Action       = $(if ($label) { $label } else { 'Copy' })
+            Size         = [long]$m.Groups['num'].Value
+            Path         = $path
             TimestampRaw = $null
-        }
-    }
-
-    $m = $script:EfcRxSizedFile.Match($Line)
-    if ($m.Success) {
-        return [pscustomobject]@{
-            Type         = 'File'
-            Action       = 'Copy'
-            Size         = [long]$m.Groups['size'].Value
-            Path         = $m.Groups['path'].Value
-            TimestampRaw = $null
-        }
-    }
-
-    $m = $script:EfcRxDir.Match($Line)
-    if ($m.Success) {
-        return [pscustomobject]@{
-            Type         = 'Dir'
-            Action       = 'NewDir'
-            Size         = [long]0
-            Path         = $m.Groups['path'].Value
-            TimestampRaw = $null
+            Code         = $null
         }
     }
 
@@ -123,11 +103,11 @@ function ConvertFrom-RobocopyLine {
             Type         = 'Error'
             Action       = 'Error'
             Size         = [long]0
-            Path         = if ($m.Groups['detail'].Success) { $m.Groups['detail'].Value } else { '' }
-            TimestampRaw = $m.Groups['code'].Value
+            Path         = $m.Groups['detail'].Value
+            TimestampRaw = $m.Groups['code'].Value   # kept for backward compatibility
+            Code         = [int]$m.Groups['code'].Value
         }
     }
 
-    # Unrecognized (banner, blank, separator) -> ignored by caller.
     return $null
 }

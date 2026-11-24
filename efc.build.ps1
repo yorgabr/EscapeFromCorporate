@@ -1,11 +1,13 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
     Invoke-Build pipeline definition for the Escape From Corporate module.
 
 .DESCRIPTION
-    Defines the local CI/CD tasks: Bootstrap, Lint, Test, Package, and Clean.
-    Task dependencies are strictly enforced: Test requires Lint; Package requires Test.
+    Defines the local CI/CD tasks: Bootstrap, Lint, Test, Docs, Package, Install, Changelog,
+    Publish, and Clean.
+    Task dependencies are strictly enforced: Test requires Lint; Package requires Test;
+    Install requires Package.
     Designed to run identically on a developer laptop and in GitHub Actions.
 
 .NOTES
@@ -15,6 +17,19 @@
     Layout  : this script lives at the PROJECT ROOT (not under .\build\).
               ProjectRoot == BuildRoot == $PSScriptRoot in this repository.
 #>
+
+# ------------------------------------------------------------------------------
+# Build script parameters (Invoke-Build exposes them as variables inside tasks)
+#   Invoke-Build Install -InstallRoot D:\PSModules -Prune
+# ------------------------------------------------------------------------------
+param(
+    # Install task: destination "Modules" folder. Default: the current user's Windows
+    # PowerShell module folder (Documents\WindowsPowerShell\Modules).
+    [string] $InstallRoot,
+
+    # Install task: also remove every other installed version of the module.
+    [switch] $Prune
+)
 
 # ------------------------------------------------------------------------------
 # Path anchoring
@@ -181,6 +196,36 @@ task Package Test, Docs, {
         (Split-Path $stageDir -Parent), $zipPath)
 
     Write-Build Green "Package artifact created: $zipPath"
+}
+
+# ==============================================================================
+# TASK: Install
+# Installs the freshly packaged module for the CURRENT USER (no administrator
+# rights) by delegating to tools\Install-LocalModule.ps1. STRICT dependency:
+# Package (which itself depends on Test -> Lint), so only a tested build is installed.
+#   Invoke-Build Install [-InstallRoot <path>] [-Prune]
+# For a quick development loop without the full pipeline, run the script directly:
+#   .\tools\Install-LocalModule.ps1 -ModuleDir .\src\EscapeFromCorporate -SkipVerify
+# ==============================================================================
+task Install Package, {
+    $manifest = Import-PowerShellDataFile -Path $ManifestPath
+    $stageDir = Join-Path $ArtifactDir "EscapeFromCorporate\$($manifest.ModuleVersion)"
+
+    $installer = Join-Path $ProjectRoot 'tools\Install-LocalModule.ps1'
+    if (-not (Test-Path -LiteralPath $installer)) {
+        throw "Install script not found at: $installer. Verify the file exists under .\tools."
+    }
+
+    $installArgs = @{ ModuleDir = $stageDir }
+    if ($InstallRoot) { $installArgs['InstallRoot'] = $InstallRoot }
+    if ($Prune)       { $installArgs['Prune'] = $true }
+
+    $result = & $installer @installArgs
+
+    Write-Build Green "Installed $($result.Name) $($result.Version) -> $($result.Path)"
+    if ($result.Verified) {
+        Write-Build Green 'Import check passed in a fresh Windows PowerShell 5.1 process.'
+    }
 }
 
 # ==============================================================================
@@ -371,3 +416,4 @@ task Docs Bootstrap, {
 # DEFAULT: full local pipeline
 # ==============================================================================
 task . Bootstrap, Lint, Test, Package
+

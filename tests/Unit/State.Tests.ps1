@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 #Requires -Modules @{ ModuleName = 'Pester'; ModuleVersion = '5.5.0' }
 
 Describe 'State persistence (Write/Get round-trip)' {
@@ -189,8 +189,10 @@ Describe 'Test-EfcPreflight (enumeration & safety guards)' {
                 )
             }
 
+            # TestDrive and C:\dst may share a drive; this test is about enumeration, not the
+            # same-drive guard (covered in SameDrive.Tests.ps1).
             $result = Test-EfcPreflight -SourcePath $Src -DestinationPath 'C:\dst' `
-                -Enumerate -RobocopyRunner $fakeRunner
+                -Enumerate -AllowSameDrive -RobocopyRunner $fakeRunner
 
             $result.TotalFiles | Should -Be 2
             $result.TotalBytes | Should -Be 3500
@@ -363,3 +365,4 @@ Describe 'Get-EfcPathRoot' {
         }
     }
 }
+

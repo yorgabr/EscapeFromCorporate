@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
     Resumes an interrupted efc job from its persisted state.
@@ -7,6 +7,10 @@
     Convenience wrapper that reads the persisted state and re-invokes Invoke-EfcJob
     using the stored source/destination signatures, continuing from the last
     checkpoint offset. Fails if no resumable state exists.
+
+.PARAMETER AllowSameDrive
+    Forwarded to Invoke-EfcJob. Needed again on resume when the original job was started
+    with -AllowSameDrive (source and destination on the same drive).
 
 .PARAMETER StateRoot
     Override for the state directory.
@@ -30,6 +34,8 @@ function Resume-EfcJob {
     [CmdletBinding()]
     [OutputType([pscustomobject])]
     param(
+        [switch] $AllowSameDrive,
+
         [string] $StateRoot = (Join-Path $env:LOCALAPPDATA 'EscapeFromCorporate')
     )
 
@@ -46,5 +52,7 @@ function Resume-EfcJob {
 
     Write-Verbose "Resuming job $($state.jobId) from offset $($state.logPointer.logByteOffset)."
     return Invoke-EfcJob -Source $state.signatures.source.path `
-        -Destination $state.signatures.destination.path -StateRoot $StateRoot
+        -Destination $state.signatures.destination.path -StateRoot $StateRoot `
+        -AllowSameDrive:$AllowSameDrive
 }
+

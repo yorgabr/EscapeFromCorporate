@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
     Spawns robocopy.exe as a detached background process with file-based logging.
@@ -7,7 +7,7 @@
     Constructs an optimized robocopy argument set for silent, byte-precise logging
     and launches it via [System.Diagnostics.Process]. Deliberately avoids STDOUT
     pipe redirection to prevent buffer deadlocks during multi-gigabyte transfers;
-    robocopy writes directly to its own log file (/LOG) which is consumed
+    robocopy writes directly to its own log file (/UNILOG) which is consumed
     asynchronously by Read-RobocopyLog.
 
     Returns a descriptor object carrying the live Process handle, PID, resolved
@@ -86,7 +86,9 @@ function Connect-Robocopy {
     #   /NC     : no file class column (leaner lines)
     #   /NS     : no size column in the per-file listing... 
     #             NOTE: with /BYTES we DO want sizes, so /NS is intentionally omitted here.
-    #   /TS     : include timestamps per entry (progress correlation)
+    #   /FP     : full path names, so every line is self-contained
+    #   /XJ     : never follow junction points (profile folders contain loops)
+    #   (no /TS : it inserts a date and breaks the "<size> <full path>" line shape)
     #   /NP     : no per-file percentage spam (we compute our own progress)
     #   /R:n /W:n : bounded retries
     $flags = [System.Collections.Generic.List[string]]::new()
@@ -95,18 +97,21 @@ function Connect-Robocopy {
     $flags.Add('/NJH')
     $flags.Add('/NJS')
     $flags.Add('/NC')
-    $flags.Add('/TS')
+    $flags.Add('/FP')
+    $flags.Add('/XJ')
     $flags.Add('/NP')
     $flags.Add("/R:$RetryCount")
     $flags.Add("/W:$RetryWaitSeconds")
     if ($Restartable) { $flags.Add('/Z') }
 
-    # Log routing: /LOG overwrites, /TEE would echo to console (undesired here).
-    $flags.Add("/LOG:$LogPath")
+    # Log routing: /UNILOG overwrites and writes UTF-16LE, so the log encoding does not
+    # depend on the console/OEM code page (plain /LOG corrupts accented paths).
+    # /TEE would echo to the console (undesired here).
+    $flags.Add("/UNILOG:$LogPath")
 
     # --- Assemble the argument string with quoted paths -------------------------
-    $quotedSource = '"{0}"' -f $SourcePath.TrimEnd('\')
-    $quotedDest   = '"{0}"' -f $DestinationPath.TrimEnd('\')
+    $quotedSource = ConvertTo-EfcRobocopyArg -Path $SourcePath
+    $quotedDest   = ConvertTo-EfcRobocopyArg -Path $DestinationPath
     $argumentLine = '{0} {1} {2}' -f $quotedSource, $quotedDest, ($flags -join ' ')
 
     $robocopyExe = Join-Path $env:SystemRoot 'System32\robocopy.exe'
@@ -155,3 +160,4 @@ function Connect-Robocopy {
         StartedUtc  = [datetime]::UtcNow.ToString('o')
     }
 }
+

@@ -1,32 +1,33 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
-    Validates that a completed copy is an exact match between source and destination.
+    Verifies that a completed copy is an exact match between source and destination.
 
 .DESCRIPTION
-    Performs a differential verification using 'robocopy /L' (list-only): after a
-    successful transfer, a second list pass should report ZERO pending files, since
-    every source file must already exist identically at the destination. Any file
-    robocopy still lists as needing copy is counted as a mismatch.
+    The verdict is taken from robocopy's EXIT CODE on a list-only pass (/L), which
+    is locale-independent and does not depend on parsing human-readable output:
 
-    Optionally performs sampled SHA256 hashing of a subset of files for deeper
-    assurance on critical transfers, without the cost of hashing every file in a
-    tens-of-gigabytes tree.
+        0  nothing would be copied, no differences           -> identical
+        1  at least one file would be copied                 -> DIVERGENT
+        2  extra files/dirs at the destination               -> ignored (no purge)
+        4  mismatched files/dirs (type clash)                -> DIVERGENT
+        8  failures (could not be read/listed)               -> DIVERGENT
+       16  fatal error                                       -> DIVERGENT
+       <0  process terminated/abnormal                       -> DIVERGENT
 
-.PARAMETER SourcePath
-    Absolute source directory.
+    The output lines are parsed only to REPORT pending files/bytes. If the exit
+    code says divergent but no line could be parsed, MismatchCount is still >= 1
+    (fail closed): the verdict never depends on the parser recognising anything.
 
-.PARAMETER DestinationPath
-    Destination directory (local or UNC).
-
-.PARAMETER SampleHashCount
-    Number of files to sample for SHA256 comparison. 0 disables hashing (default).
+    Optional sampled SHA256 hashing adds content-level assurance.
 
 .PARAMETER RobocopyRunner
-    Injectable list-pass runner for testing. Signature: { param($Source,$Dest) -> string[] }
+    Injectable list-pass runner. Signature:
+        { param($Source,$Dest) -> [pscustomobject]@{ ExitCode=<int>; Lines=<string[]> } }
 
 .OUTPUTS
-    PSCustomObject: Method, MismatchCount, HashSamplesChecked, HashMismatches.
+    PSCustomObject: Method, MismatchCount, ExitCode, PendingFiles, PendingBytes,
+    ListErrors, HashSamplesChecked, HashMismatches.
 
 .NOTES
     Author  : Yorga Babuscan <yorgabr@gmail.com>
@@ -48,32 +49,53 @@ function Test-EfcCopyIntegrity {
         $RobocopyRunner = {
             param($Source, $Dest)
             $robo = Join-Path $env:SystemRoot 'System32\robocopy.exe'
-            # A post-copy list pass: any listed file == still-pending == mismatch.
-            & $robo $Source $Dest /L /E /BYTES /NJH /NJS /NC /TS /R:0 /W:0 2>&1
+            # Native stderr must not become a terminating error under 'Stop'.
+            $ErrorActionPreference = 'Continue'
+            # Keep the exclusion flags (/XJ ...) identical to the copy pass.
+            $out  = & $robo $Source $Dest /L /E /BYTES /NJH /NJS /NC /NDL /FP /NP /XJ /R:0 /W:0 2>&1
+            $code = $LASTEXITCODE
+            [pscustomobject]@{
+                ExitCode = $code
+                Lines    = @($out | ForEach-Object { [string]$_ })
+            }
         }
     }
 
-    $lines        = & $RobocopyRunner $SourcePath $DestinationPath
-    $mismatchCount = 0
+    $run = & $RobocopyRunner $SourcePath $DestinationPath
+    if ($null -eq $run -or -not $run.PSObject.Properties['ExitCode'] -or
+        -not $run.PSObject.Properties['Lines']) {
+        throw [System.InvalidOperationException]::new(
+            'RobocopyRunner must return an object with ExitCode and Lines.')
+    }
 
-    foreach ($line in $lines) {
+    $exit = [int]$run.ExitCode
+
+    # Bits 1 (copy), 4 (mismatch), 8 (failure), 16 (fatal) => divergent. Bit 2 is benign.
+    $divergent = ($exit -lt 0) -or (($exit -band (1 -bor 4 -bor 8 -bor 16)) -ne 0)
+
+    $pendingFiles = 0
+    $pendingBytes = [long]0
+    $listErrors   = 0
+    foreach ($line in @($run.Lines)) {
         $entry = ConvertFrom-RobocopyLine -Line ([string]$line)
-        if ($entry -and $entry.Type -eq 'File') {
-            $mismatchCount++
+        if (-not $entry) { continue }
+        switch ($entry.Type) {
+            'File'  { $pendingFiles++; $pendingBytes += $entry.Size }
+            'Error' { $listErrors++ }
         }
     }
 
-    # --- Optional sampled hashing ---------------------------------------------
+    # Fail closed: the exit code alone is enough to reject.
+    $mismatchCount = [Math]::Max($pendingFiles + $listErrors, [int]$divergent)
+
+    # --- Optional sampled hashing (unchanged behaviour) -----------------------
     $samplesChecked = 0
     $hashMismatches = 0
-    $method         = 'RobocopyDifferentialList'
+    $method         = 'RobocopyExitCode'
 
     if ($SampleHashCount -gt 0 -and (Test-Path -LiteralPath $SourcePath)) {
-        $method = 'RobocopyList+SampledSHA256'
+        $method = 'RobocopyExitCode+SampledSHA256'
 
-        # Resolve a canonical, separator-normalized base path so the relative-path
-        # slice is robust against trailing separators and casing differences
-        # between the supplied path and Get-ChildItem's FullName.
         $sourceBase = (Resolve-Path -LiteralPath $SourcePath).ProviderPath.TrimEnd('\')
         $baseLength = $sourceBase.Length
 
@@ -83,7 +105,6 @@ function Test-EfcCopyIntegrity {
             $sourceFiles = $allFiles | Get-Random -Count $take
 
             foreach ($sf in @($sourceFiles)) {
-                # StartsWith guard: skip anything that is not under the base (defensive).
                 if (-not $sf.FullName.StartsWith($sourceBase, [System.StringComparison]::OrdinalIgnoreCase)) {
                     continue
                 }
@@ -108,6 +129,10 @@ function Test-EfcCopyIntegrity {
     return [pscustomobject]@{
         Method             = $method
         MismatchCount      = $mismatchCount + $hashMismatches
+        ExitCode           = $exit
+        PendingFiles       = $pendingFiles
+        PendingBytes       = $pendingBytes
+        ListErrors         = $listErrors
         HashSamplesChecked = $samplesChecked
         HashMismatches     = $hashMismatches
     }

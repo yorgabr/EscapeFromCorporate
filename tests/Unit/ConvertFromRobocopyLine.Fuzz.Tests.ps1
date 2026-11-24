@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 #Requires -Modules @{ ModuleName = 'Pester'; ModuleVersion = '5.5.0' }
 
 BeforeAll {
@@ -156,40 +156,32 @@ Describe 'ConvertFrom-RobocopyLine :: real-locale fixtures' {
 
         It 'handles unicode paths byte-accurately' {
             $e = InModuleScope EscapeFromCorporate {
-                ConvertFrom-RobocopyLine -Line "	  New File 		    4096	C:\dados\arquivo-ção-üñ.txt"
+                ConvertFrom-RobocopyLine -Line ("`t  New File `t`t    4096`tC:\dados\arquivo-" + [char]0x00E7 + [char]0x00E3 + "o-" + [char]0x00FC + [char]0x00F1 + ".txt")
             }
             $e.Type | Should -Be 'File'
-            $e.Path | Should -Match 'arquivo-ção-üñ\.txt$'
+            $e.Path | Should -Match ('arquivo-' + [char]0x00E7 + [char]0x00E3 + 'o-' + [char]0x00FC + [char]0x00F1 + '\.txt$')
         }
     }
 
-    Context 'pt-BR / de-DE: localized action labels (documented limitation)' {
+    Context 'pt-BR / de-DE: localized action labels are tolerated' {
 
-        # DECISION RECORD:
-        # Robocopy localizes action labels ("New File" -> "Arquivo Novo" / "Neue Datei").
-        # The parser is intentionally anchored on English labels. On a localized OS
-        # the recommended mitigation is to force English robocopy output. These tests
-        # DOCUMENT the current behavior so the limitation is explicit, not silent.
+        # DECISION RECORD (supersedes the old "documented limitation"):
+        # robocopy localizes its action labels ("New File" -> "Arquivo Novo" / "Neue Datei").
+        # The parser no longer depends on ANY label: File vs Dir is decided by the path
+        # (directory headers end with a backslash) and an optional leading label is ignored.
+        # Real pt-BR captures live in tests/Unit/RobocopyRealOutput.Tests.ps1.
 
-        It 'does NOT parse localized pt-BR action labels as File entries' {
+        It 'parses localized pt-BR action labels as File entries' {
             $e = InModuleScope EscapeFromCorporate {
-                ConvertFrom-RobocopyLine -Line "	  Arquivo Novo 		    4096	C:\Usuarios\eu\Documentos\rel.docx"
+                ConvertFrom-RobocopyLine -Line "`t  Arquivo Novo `t`t    4096`tC:\Usuarios\eu\Documentos\rel.docx"
             }
-            # Localized "Arquivo Novo" is not in the English action alternation,
-            # but the sized-file fallback regex MAY still match on the numeric+path
-            # shape. Assert only the robustness contract, not a specific outcome.
-            if ($null -ne $e) {
-                $e.Type | Should -BeIn @('File', 'Dir', 'Error')
-                $e.Size | Should -BeGreaterOrEqual 0
-            }
+            $e.Type | Should -Be 'File'
+            $e.Size | Should -Be 4096
         }
 
-        It 'the sized-file fallback still captures size+path regardless of label language' {
-            # This is the SAFETY NET: even when the action label is localized, the
-            # generic "<whitespace><digits><whitespace><drivepath>" pattern recovers
-            # the essential metrics. Verify it works for a German line.
+        It 'parses a label-less size+path line regardless of language' {
             $e = InModuleScope EscapeFromCorporate {
-                ConvertFrom-RobocopyLine -Line "		    1500	C:\Benutzer\ich\bericht.docx"
+                ConvertFrom-RobocopyLine -Line "`t`t    1500`tC:\Benutzer\ich\bericht.docx"
             }
             $e.Type | Should -Be 'File'
             $e.Size | Should -Be 1500
@@ -240,3 +232,4 @@ Describe 'ConvertFrom-RobocopyLine :: performance characteristic' {
         $sw.Elapsed.TotalSeconds | Should -BeLessThan 5
     }
 }
+

@@ -1,6 +1,6 @@
 ﻿@{
     RootModule        = 'EscapeFromCorporate.psm1'
-    ModuleVersion     = '2.0.0'
+    ModuleVersion     = '3.0.0'
     GUID              = 'e3f8a1c2-6b4d-4a90-9f2e-1d7c5b8a3e46'
     Author            = 'Yorga Babuscan'
     CompanyName       = 'Yorga Babuscan'

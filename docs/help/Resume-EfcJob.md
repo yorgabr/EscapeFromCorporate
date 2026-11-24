@@ -13,7 +13,7 @@ Resumes an interrupted efc job from its persisted state.
 ## SYNTAX
 
 ```
-Resume-EfcJob [[-StateRoot] <String>] [<CommonParameters>]
+Resume-EfcJob [-AllowSameDrive] [[-StateRoot] <String>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -48,6 +48,21 @@ Aliases:
 Required: False
 Position: 0
 Default value: $env:LOCALAPPDATA\EscapeFromCorporate
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -AllowSameDrive
+{{ Fill AllowSameDrive Description }}
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

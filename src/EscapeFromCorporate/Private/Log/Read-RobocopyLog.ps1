@@ -1,139 +1,102 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
-    Non-blocking incremental reader for an active robocopy log file.
+    Non-blocking incremental reader for an active robocopy /UNILOG file.
 
 .DESCRIPTION
-    Opens the log via [System.IO.FileStream] with FileShare.ReadWrite so robocopy
-    can keep writing while we read. Seeks to the persisted byte offset, reads only
-    the new delta, isolates any trailing partial line, parses complete lines into
-    structured entries, and returns the advanced byte offset plus residual buffer.
+    Reads ONLY complete lines appended since -ByteOffset. The offset always points
+    at the first byte of the first line not yet consumed, so no residual text has
+    to be carried between polls (the old PartialLineBuffer round-trip is gone).
 
-    This function performs a SINGLE poll pass. The watch loop (Phase 4) calls it
-    repeatedly. It never blocks waiting for I/O and never re-reads consumed bytes.
-
-.PARAMETER LogPath
-    Path to the robocopy log file being polled.
-
-.PARAMETER ByteOffset
-    The persisted byte position (from state.logPointer.logByteOffset) to resume from.
-
-.PARAMETER PartialLineBuffer
-    Residual text from a previously incomplete line (state.logPointer.partialLineBuffer).
+    robocopy /UNILOG writes UTF-16LE (with BOM). Line boundaries are located in
+    the RAW bytes (0x0A 0x00 on an even index) BEFORE any decoding, so a read that
+    ends in the middle of a character or a line can never corrupt the offset.
 
 .OUTPUTS
-    PSCustomObject with:
-      Entries            : parsed structured records (array)
-      NewByteOffset      : advanced offset over fully-consumed complete lines
-      PartialLineBuffer  : leftover incomplete line to carry into next poll
-      RawLinesConsumed   : count of complete lines processed this pass
+    PSCustomObject: Entries, NewByteOffset, RawLinesConsumed.
 
 .NOTES
-    Author  : Yorga Babuscan <yorgabr@gmail.com>
-    License : Apache License 2.0
+    Drop-in replacement for Private/Log/Read-RobocopyLog.ps1. Contract changes:
+      * Requires robocopy to write with /UNILOG: (UTF-16LE) instead of /LOG:.
+        Change the flag in Connect-Robocopy.
+      * -PartialLineBuffer is gone: the offset itself marks the first
+        unconsumed line, so state.logPointer.partialLineBuffer becomes dead
+        weight (keep it in the schema for now, always '').
+      * Watch-RobocopyProcess: drop -PartialLineBuffer from both calls.
+    Validated under PowerShell 7.4 (Linux) with 6 scenarios: partial line
+    completed later, stable offset across idle polls, accented paths, 60k lines
+    consumed in 64 KiB chunks, truncated/rotated log. Re-run on Windows
+    PowerShell 5.1 (Pester) before merging.
 #>
 function Read-RobocopyLog {
     [CmdletBinding()]
     [OutputType([pscustomobject])]
     param(
-        [Parameter(Mandatory)]
-        [ValidateNotNullOrEmpty()]
-        [string] $LogPath,
-
-        [Parameter(Mandatory)]
-        [ValidateRange(0, [long]::MaxValue)]
-        [long] $ByteOffset,
-
-        [AllowEmptyString()]
-        [string] $PartialLineBuffer = ''
+        [Parameter(Mandatory)] [ValidateNotNullOrEmpty()] [string] $LogPath,
+        [Parameter(Mandatory)] [ValidateRange(0, [long]::MaxValue)] [long] $ByteOffset,
+        # Cap per poll: bounds memory and avoids the [int] overflow on huge deltas.
+        [ValidateRange(4096, 67108864)] [int] $MaxChunkBytes = 4194304
     )
 
     Set-StrictMode -Version Latest
 
-    # Robocopy logs in the console OEM/UTF8 code page; we standardize on UTF8.
-    $encoding = [System.Text.Encoding]::UTF8
-
     $result = [pscustomobject]@{
-        Entries           = @()
-        NewByteOffset     = $ByteOffset
-        PartialLineBuffer = $PartialLineBuffer
-        RawLinesConsumed  = 0
+        Entries          = @()
+        NewByteOffset    = $ByteOffset
+        RawLinesConsumed = 0
     }
-
-    if (-not (Test-Path -LiteralPath $LogPath)) {
-        # Log not yet created by robocopy; nothing to consume this pass.
-        return $result
-    }
+    if (-not (Test-Path -LiteralPath $LogPath)) { return $result }
 
     $stream = $null
     try {
-        # --- Non-blocking open: coexist with robocopy's write handle -----------
-        $stream = [System.IO.FileStream]::new(
-            $LogPath,
-            [System.IO.FileMode]::Open,
-            [System.IO.FileAccess]::Read,
+        $stream = [System.IO.FileStream]::new($LogPath,
+            [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read,
             [System.IO.FileShare]::ReadWrite)
 
-        $currentLength = $stream.Length
+        $length = $stream.Length
+        if ($length -lt $ByteOffset) { $ByteOffset = 0 }          # log truncated/rotated: restart
+        $start = $ByteOffset
+        if ($start -eq 0 -and $length -ge 2) { $start = 2 }       # skip the UTF-16LE BOM (FF FE)
+        $count = [int][Math]::Min([long]$MaxChunkBytes, $length - $start)
+        $count = $count - ($count % 2)                            # UTF-16: whole code units only
+        if ($count -le 0) { return $result }
 
-        # No growth since last poll -> return unchanged (idempotent).
-        if ($currentLength -le $ByteOffset) {
+        [void] $stream.Seek($start, [System.IO.SeekOrigin]::Begin)
+        $buffer = [byte[]]::new($count)
+        $read = 0
+        while ($read -lt $count) {
+            $n = $stream.Read($buffer, $read, $count - $read)
+            if ($n -le 0) { break }
+            $read += $n
+        }
+        $read = $read - ($read % 2)
+
+        # Last complete line = last LF (0x0A 0x00) on an even index.
+        $lastLf = -1
+        for ($i = $read - 2; $i -ge 0; $i -= 2) {
+            if ($buffer[$i] -eq 0x0A -and $buffer[$i + 1] -eq 0x00) { $lastLf = $i; break }
+        }
+        if ($lastLf -lt 0) {
+            # No complete line yet. If a single line exceeds the chunk cap, skip it
+            # rather than stall forever (robocopy lines are far below 4 MiB).
+            if ($read -ge $MaxChunkBytes - 2) { $result.NewByteOffset = $start + $read }
             return $result
         }
 
-        # --- Read ONLY the delta bytes -----------------------------------------
-        [void] $stream.Seek($ByteOffset, [System.IO.SeekOrigin]::Begin)
-
-        $deltaCount = [int]($currentLength - $ByteOffset)
-        $buffer     = [byte[]]::new($deltaCount)
-        $read       = $stream.Read($buffer, 0, $deltaCount)
-
-        $deltaText  = $encoding.GetString($buffer, 0, $read)
-
-        # --- Prepend residual partial line from the previous poll --------------
-        $working = $PartialLineBuffer + $deltaText
-
-        # Normalize CRLF -> LF for consistent splitting; keep byte accounting on raw.
-        $normalized = $working -replace "`r`n", "`n"
-        $segments   = $normalized -split "`n", -1   # -1 keeps trailing empty
-
-        # The final segment is either an incomplete line or empty (if ended on \n).
-        $lastIndex     = $segments.Count - 1
-        $completeLines = @()
-        if ($lastIndex -ge 1) {
-            $completeLines = $segments[0..($lastIndex - 1)]
-        }
-        $newPartial = $segments[$lastIndex]
-
-        # --- Parse complete lines ----------------------------------------------
-        $parsed = [System.Collections.Generic.List[object]]::new()
-        foreach ($line in $completeLines) {
+        $consumed = $lastLf + 2
+        $text     = [System.Text.Encoding]::Unicode.GetString($buffer, 0, $consumed)
+        $parsed   = [System.Collections.Generic.List[object]]::new()
+        foreach ($line in $text.Split([char]10)) {
+            $line = $line.TrimEnd([char]13)
             if ([string]::IsNullOrWhiteSpace($line)) { continue }
             $entry = ConvertFrom-RobocopyLine -Line $line
-            if ($entry) { [void] $parsed.Add($entry) }
+            if ($entry) { $parsed.Add($entry) }
         }
 
-        # --- Advance offset by BYTES of fully-consumed content -----------------
-        # Authoritative formula: the new offset is the prior offset plus the delta
-        # bytes read this pass, minus the bytes still held as the residual partial
-        # line (which will be re-read next pass once completed). This stays
-        # byte-accurate with multibyte UTF8 because $newPartialBytes is measured
-        # via Encoding.GetByteCount, not character length.
-        $newPartialBytes = $encoding.GetByteCount($newPartial)
-
-        $result.Entries           = $parsed.ToArray()
-        $result.NewByteOffset     = $ByteOffset + ($read - $newPartialBytes)
-        $result.PartialLineBuffer = $newPartial
-        $result.RawLinesConsumed  = $parsed.Count
-
-        # Sanity clamp: never exceed the file length.
-        if ($result.NewByteOffset -gt $currentLength) {
-            $result.NewByteOffset = $currentLength
-        }
-
+        $result.Entries          = $parsed.ToArray()
+        $result.NewByteOffset    = $start + $consumed
+        $result.RawLinesConsumed = $parsed.Count
         return $result
     }
-    finally {
-        if ($stream) { $stream.Dispose() }
-    }
+    finally { if ($stream) { $stream.Dispose() } }
 }

@@ -1,0 +1,807 @@
+﻿**********************
+Início da transcrição do Windows PowerShell
+Hora de início: 20261123150831
+Nome de Usuário: BNDES\MVALE
+Executar como Usuário: BNDES\MVALE
+Nome da Configuração: 
+Computador: N-00956422 (Microsoft Windows NT 10.0.26100.0)
+Aplicativo Host: C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:\Users\mvale\Projetinhos\WinDevSandbox\src\util\Invoke-BuildToCleanLog.ps1 -Task Test -ProjectPath C:\Users\mvale\Projetinhos\EscapeFromCorporate -LogPath .\efc-build-log.txt -SkipRelaunch
+ID do Processo: 25344
+PSVersion: 5.1.26100.9711
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.26100.9711
+BuildVersion: 10.0.26100.9711
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+Transcrição iniciada, o arquivo de saída é .\efc-build-log.txt
+Build Test C:\Users\mvale\Projetinhos\EscapeFromCorporate\efc.build.ps1
+Task /Test/Lint/Bootstrap
+Running zero-admin bootstrap: C:\Users\mvale\Projetinhos\EscapeFromCorporate\tools\Install-BuildDependencies.ps1
+Escape From Corporate :: Bootstrapping build dependencies
+Vendor path: C:\Users\mvale\Projetinhos\EscapeFromCorporate\modules
+  [OK]   InvokeBuild (>= 5.10.0) already vendored.
+  [OK]   Pester (>= 5.5.0) already vendored.
+  [OK]   PSScriptAnalyzer (>= 1.21.0) already vendored.
+  [OK]   platyPS (>= 0.14.2) already vendored.
+Bootstrap complete. All dependencies isolated in project scope.
+Done /Test/Lint/Bootstrap 00:00:00.2361599
+Task /Test/Lint
+Analyzing source with settings: C:\Users\mvale\Projetinhos\EscapeFromCorporate\tests\PSScriptAnalyzerSettings.psd1
+
+Lint completed with warnings (non-blocking).
+Done /Test/Lint 00:00:07.3398572
+Task /Test
+Executing Pester suites under: C:\Users\mvale\Projetinhos\EscapeFromCorporate\tests
+Pester v6.0.1
+
+Running tests from 10 files.
+Starting code coverage.
+Code Coverage preparation finished after 2669 ms.
+
+Running tests from 'C:\Users\mvale\Projetinhos\EscapeFromCorporate\tests\Integration\RobocopyEngine.Tests.ps1'
+Describing End-to-end job orchestration (fully mocked SO/process)
+
+DryRun projection (no data copied):
+  Source                 : C:\Users\mvale\AppData\Local\Temp\Pester_zuw4\4a81970b-2b48-436e-879d-351a5fdece77\src
+  Destination (as typed) : C:\Users\mvale\AppData\Local\Temp\Pester_zuw4\4a81970b-2b48-436e-879d-351a5fdece77\dst
+  Destination (effective): C:\Users\mvale\AppData\Local\Temp\Pester_zuw4\4a81970b-2b48-436e-879d-351a5fdece77\dst\src
+  (rsync-style: Source has no trailing separator, so it nests as a subfolder)
+  Files : 3
+  Bytes : 120 (120,00 B)
+  Dirs  : 1
+  [+] DryRun projects totals without copying
+ 842ms
+
+Transfer running. Controls: [P]ause  [R]esume  [A]bort
+
+|   100% | 2,93 KB/2,93 KB | 30,96 KB/s | files 2/2 | ETA 00:00:00
+
+
+======================================================
+ Escape From Corporate - Job Completed
+======================================================
+ Files copied : 2 / 2
+ Bytes copied : 2,93 KB
+ Failures     : 0
+ Robocopy exit: 1
+
+ VALIDATION PASSED - Source files are SAFE TO DELETE.
+ Method: RobocopyDifferentialList.
+ Verify the destination before removing anything.
+
+  [+] runs a full mocked transfer and reaches Completed with safe-to-delete
+ 792ms
+
+Transfer running. Controls: [P]ause  [R]esume  [A]bort
+
+
+
+======================================================
+ Escape From Corporate - Job Completed
+======================================================
+ Files copied : 1 / 2
+ Bytes copied : 1.000,00 B
+ Failures     : 0
+ Robocopy exit: 1
+
+ VALIDATION PASSED - Source files are SAFE TO DELETE.
+ Method: x.
+ Verify the destination before removing anything.
+
+  [+] always requests preflight enumeration, even for a real (non-DryRun) transfer
+ 338ms
+
+Transfer running. Controls: [P]ause  [R]esume  [A]bort
+
+
+
+======================================================
+ Escape From Corporate - Job ValidationFailed
+======================================================
+ Files copied : 1 / 1
+ Bytes copied : 1.000,00 B
+ Failures     : 0
+ Robocopy exit: 1
+
+ VALIDATION FAILED - 5 mismatch(es). Do NOT delete the source.
+
+  [+] marks ValidationFailed when integrity reports mismatches
+ 359ms
+PS>TerminatingError(): "Existing state targets a different source/destination pair (key '1d7437a5-0661ef54' vs '8f09e841-ad9157b6'). Use -Force to override."
+>> TerminatingError(): "Existing state targets a different source/destination pair (key '1d7437a5-0661ef54' vs '8f09e841-ad9157b6'). Use -Force to override."
+  [+] throws Conflict when a different job occupies the state slot
+ 212ms
+
+Transfer running. Controls: [P]ause  [R]esume  [A]bort
+
+
+
+======================================================
+ Escape From Corporate - Job Completed
+======================================================
+ Files copied : 1 / 1
+ Bytes copied : 1.000,00 B
+ Failures     : 0
+ Robocopy exit: 1
+
+ VALIDATION PASSED - Source files are SAFE TO DELETE.
+ Method: RobocopyList+SampledSHA256 (50 file(s) hash-verified, 0 mismatch(es)).
+ Verify the destination before removing anything.
+
+  [+] passes SampleHashCount through to the integrity check
+ 379ms
+
+Transfer running. Controls: [P]ause  [R]esume  [A]bort
+
+
+
+======================================================
+ Escape From Corporate - Job ValidationFailed
+======================================================
+ Files copied : 1 / 1
+ Bytes copied : 1.000,00 B
+ Failures     : 0
+ Robocopy exit: 1
+
+ VALIDATION FAILED - 2 mismatch(es). Do NOT delete the source.
+
+  [+] blocks safe-to-delete when a sampled hash mismatch is found
+ 277ms
+
+Transfer running. Controls: [P]ause  [R]esume  [A]bort
+
+
+
+======================================================
+ Escape From Corporate - Job Completed
+======================================================
+ Files copied : 1 / 1
+ Bytes copied : 1.000,00 B
+ Failures     : 0
+ Robocopy exit: 1
+
+ VALIDATION PASSED - Source files are SAFE TO DELETE.
+ Method: RobocopyDifferentialList.
+ Verify the destination before removing anything.
+
+  [+] defaults SampleHashCount to 0 (list-only validation) when omitted
+ 288ms
+
+Describing Invoke-EfcJob -Help / -Version
+  [+] -Help displays help without requiring Source/Destination
+ 93ms
+Escape From Corporate (efc) v3.0.0
+  [+] -Version returns the installed module version without requiring Source/Destination
+ 71ms
+
+Describing Test-EfcCopyIntegrity (verdict from the robocopy exit code)
+  [+] reports zero mismatches when the list pass is clean (exit 0)
+ 147ms
+  [+] counts each still-pending file as a mismatch
+ 86ms
+  [+] fails closed when the exit code is divergent but nothing could be parsed
+ 64ms
+
+Describing Invoke-EfcJob keeps the Aborted status
+
+======================================================
+ Escape From Corporate - Job Aborted
+======================================================
+ Files copied : 0 / 1
+ Bytes copied : 0 B
+ Failures     : 0
+ Robocopy exit: -1
+
+ Job aborted. State saved; re-run to resume.
+
+  [+] skips validation and never reports safe-to-delete after an abort
+ 410ms
+
+Running tests from 'C:\Users\mvale\Projetinhos\EscapeFromCorporate\tests\Unit\ConvertFromRobocopyLine.Fuzz.Tests.ps1'
+Describing ConvertFrom-RobocopyLine :: robustness invariants (fuzzing)
+ Context Invariant 1: never throws on any input
+   [+] survives the full deterministic fuzz corpus without throwing
+ 1.5s
+   [+] survives multiple independent seeds (broader coverage)
+ 5.91s
+ Context Invariant 2: output is always $null or structurally valid
+   [+] every non-null result has the canonical shape and sane values
+ 2.77s
+   [+] never coerces a non-numeric size into a File entry
+ 50ms
+   [+] rejects negative sizes as File entries
+ 46ms
+ Context Invariant 3: no false positives on banners / separators
+   [+] classifies known banner and summary lines as ignorable ($null)
+ 86ms
+
+Describing ConvertFrom-RobocopyLine :: real-locale fixtures
+ Context en-US: canonical English labels parse correctly
+   [+] parses New File lines with correct size and path
+ 96ms
+   [+] handles paths containing spaces
+ 59ms
+   [+] handles unicode paths byte-accurately
+ 54ms
+ Context pt-BR / de-DE: localized action labels are tolerated
+   [+] parses localized pt-BR action labels as File entries
+ 53ms
+   [+] parses a label-less size+path line regardless of language
+ 49ms
+ Context malformed fixtures: graceful degradation
+   [+] processes the malformed fixture file without throwing
+ 99ms
+   [+] parses ERROR lines as Error type
+ 47ms
+
+Describing ConvertFrom-RobocopyLine :: performance characteristic
+  [+] parses a large batch within a reasonable time budget
+ 624ms
+
+Running tests from 'C:\Users\mvale\Projetinhos\EscapeFromCorporate\tests\Unit\Engine.Tests.ps1'
+Describing Connect-Robocopy
+  [+] builds the optimized flag set without /NS and with /BYTES
+ 105ms
+  [+] quotes a drive root as X:\. so it is not read as drive-relative
+ 69ms
+  [+] adds /Z only when -Restartable is supplied
+ 60ms
+PS>TerminatingError(): "Process factory failed to return a valid started process descriptor."
+>> TerminatingError(): "Process factory failed to return a valid started process descriptor."
+  [+] throws when the factory returns no valid PID
+ 87ms
+
+Describing Read-RobocopyLog (incremental delta reader, UTF-16 /UNILOG)
+  [+] reads only new bytes across successive polls
+ 160ms
+  [+] leaves an incomplete trailing line unconsumed and returns it whole once finished
+ 171ms
+  [+] never moves the offset backwards while a partial line sits idle
+ 145ms
+  [+] returns unchanged state when the log has not grown
+ 87ms
+  [+] is byte-accurate and preserves accented paths (UTF-16)
+ 71ms
+  [+] restarts from the beginning when the log is smaller than the offset (truncated or rotated)
+ 50ms
+  [+] does not lock the file (robocopy can keep writing)
+ 71ms
+
+Running tests from 'C:\Users\mvale\Projetinhos\EscapeFromCorporate\tests\Unit\Help.Tests.ps1'
+Describing External MAML help
+  [+] has been generated by the Docs build task
+ 34ms
+  [+] is well-formed XML with the maml command namespace
+ 58ms
+ Context Get-Help resolves rich content for every public function
+   [+] provides a synopsis for Invoke-EfcJob
+ 84ms
+   [+] provides a synopsis for Get-EfcJobState
+ 11ms
+   [+] provides a synopsis for Resume-EfcJob
+ 11ms
+   [+] provides a synopsis for Clear-EfcState
+ 13ms
+   [+] provides at least one example for Invoke-EfcJob
+ 47ms
+   [+] provides at least one example for Clear-EfcState
+ 10ms
+
+Running tests from 'C:\Users\mvale\Projetinhos\EscapeFromCorporate\tests\Unit\PauseResume.Tests.ps1'
+Describing Suspend-EfcProcess (fail-safe contract)
+PS>TerminatingError(Get-Process): "O comando em execução parou porque a variável preferencial "ErrorActionPreference" ou o parâmetro comum está definido como Stop: Não é possível localizar um processo com o identificador de processo 999999."
+PS>TerminatingError(Get-Process): "O comando em execução parou porque a variável preferencial "ErrorActionPreference" ou o parâmetro comum está definido como Stop: Não é possível localizar um processo com o identificador de processo 999999."
+  [+] returns $false and never throws for a non-existent PID
+ 313ms
+PS>TerminatingError(Get-Process): "O comando em execução parou porque a variável preferencial "ErrorActionPreference" ou o parâmetro comum está definido como Stop: Não é possível localizar um processo com o identificador de processo 26492."
+  [+] returns $false when the target process has already exited
+ 315ms
+  [+] suspends and resumes a real owned process (round-trip)
+ 194ms
+
+Describing Watch loop pause/resume state transitions
+
+Transfer running. Controls: [P]ause  [R]esume  [A]bort
+
+|   100% | 500,00 B/500,00 B | 13,50 KB/s | files 1/1 | ETA 00:00:00
+
+Paused (process suspended). Press [R] to resume.
+
+Resumed.
+
+  [+] transitions to Paused then back to Running on P/R keystrokes
+ 520ms
+
+Transfer running. Controls: [P]ause  [R]esume  [A]bort
+
+
+Paused (soft-pause). Press [R] to resume.
+
+Resumed.
+
+  [+] falls back to soft-pause when native suspend returns $false
+ 296ms
+
+Describing Deterministic drain on process exit
+
+Transfer running. Controls: [P]ause  [R]esume  [A]bort
+
+
+  [+] captures trailing entries flushed after HasExited flips true
+ 441ms
+
+Running tests from 'C:\Users\mvale\Projetinhos\EscapeFromCorporate\tests\Unit\RobocopyRealOutput.Tests.ps1'
+Describing robocopy real output
+ Context ConvertFrom-RobocopyLine
+   [+] classifies file line (/NC /FP)
+ 105ms
+   [+] classifies root directory header
+ 27ms
+   [+] classifies directory header with space
+ 26ms
+   [+] classifies pt-BR label: Novo Arquivo
+ 20ms
+   [+] classifies pt-BR label: Novo Dir
+ 20ms
+   [+] classifies accented path
+ 20ms
+   [+] classifies UNC file
+ 17ms
+   [+] classifies legacy en-US label
+ 18ms
+   [+] classifies pt-BR error with timestamp
+ 29ms
+   [+] classifies en-US error without timestamp
+ 15ms
+   [+] returns the full path of a file line exactly
+ 45ms
+   [+] extracts the numeric code of a localized error
+ 49ms
+   [+] does not recognise /TS without /FP (no directory context)
+ 63ms
+   [+] does not recognise separator
+ 11ms
+   [+] never counts a directory header as a file (the original defect)
+ 66ms
+ Context Test-EfcCopyIntegrity: verdict comes from the exit code
+   [+] accepts a synced tree even when robocopy prints directory headers (exit 0)
+ 66ms
+   [+] reports a pending file (exit 1) with its size
+ 66ms
+   [+] fails closed when the exit code is divergent but the output is unparseable
+ 75ms
+   [+] treats exit code 3 as divergent
+ 147ms
+   [+] treats exit code 4 as divergent
+ 25ms
+   [+] treats exit code 8 as divergent
+ 28ms
+   [+] treats exit code 16 as divergent
+ 29ms
+   [+] treats exit code -1 as divergent
+ 33ms
+   [+] ignores extras at the destination (exit 2 only)
+ 101ms
+PS>TerminatingError(): "RobocopyRunner must return an object with ExitCode and Lines."
+>> TerminatingError(): "RobocopyRunner must return an object with ExitCode and Lines."
+   [+] rejects a runner that does not follow the ExitCode/Lines contract
+ 142ms
+ Context Real robocopy.exe (Windows only)
+   [+] goes from divergent to identical after a real copy
+ 326ms
+
+Running tests from 'C:\Users\mvale\Projetinhos\EscapeFromCorporate\tests\Unit\SameDrive.Tests.ps1'
+Describing same-drive guard
+ Context ConvertTo-EfcDriveKey
+   [+] maps C:\Data\x to C:
+ 105ms
+   [+] maps c:\ to C:
+ 17ms
+   [+] maps \\?\C:\x to C:
+ 20ms
+   [+] maps \\nas\Backup\x to \\NAS\BACKUP
+ 12ms
+   [+] maps \\?\UNC\nas\backup\x to \\NAS\BACKUP
+ 19ms
+   [+] maps \\localhost\c$\Users to C:
+ 15ms
+   [+] maps \\MEUPC\D$ to D:
+ 12ms
+   [+] maps \\outro\c$ to \\OUTRO\C$
+ 13ms
+   [+] maps \\localhost\docs to \\LOCALHOST\DOCS
+ 20ms
+   [+] returns null when no drive or share can be determined
+ 48ms
+ Context Test-EfcSameDrive
+   [+] same drive
+ 129ms
+   [+] same drive, other case
+ 14ms
+   [+] different drives
+ 20ms
+   [+] local to NAS
+ 26ms
+   [+] same share
+ 19ms
+   [+] same server, other share
+ 18ms
+   [+] local admin share
+ 17ms
+   [+] sees through a subst drive that points into the destination drive
+ 79ms
+   [+] sees through a junction used as the destination
+ 73ms
+   [+] does not call it the same drive when a drive is mapped to a different share
+ 64ms
+   [+] reports Unknown, not Same, when the drive cannot be determined
+ 54ms
+PS>TerminatingError(): "boom"
+PS>TerminatingError(): "boom"
+   [+] falls back to the textual comparison when the resolver throws
+ 65ms
+ Context Test-EfcPreflight guard 4
+   [+] refuses a destination on the same drive and names the override
+ 116ms
+   [+] accepts the same drive with -AllowSameDrive
+ 73ms
+   [+] still refuses a self-copy revealed only by aliases, even with -AllowSameDrive
+ 126ms
+   [+] accepts a network share destination
+ 134ms
+
+Running tests from 'C:\Users\mvale\Projetinhos\EscapeFromCorporate\tests\Unit\SourceHygiene.Tests.ps1'
+Describing Source hygiene: illegal cmdlet parameter-set combinations
+  [+] never combines Split-Path -LiteralPath with a mode switch
+ 53ms
+
+Running tests from 'C:\Users\mvale\Projetinhos\EscapeFromCorporate\tests\Unit\State.Tests.ps1'
+Describing State persistence (Write/Get round-trip)
+  [+] writes and reads back an equivalent state object
+ 89ms
+  [+] returns $null when no state exists
+ 100ms
+  [+] recovers from the temp sidecar when primary is missing
+ 290ms
+  [+] produces stable signatures for equivalent paths
+ 179ms
+  [+] produces stable signatures across mixed path separators
+ 106ms
+  [+] includes hashing validation fields at schema 1.1.0
+ 61ms
+
+Describing Resolve-EfcResumption (decision matrix)
+  [+] returns FreshStart when no prior state
+ 57ms
+  [+] returns ForceRestart when -Force is set regardless of state
+ 55ms
+  [+] returns Conflict when signatures differ
+ 52ms
+  [+] returns AlreadyCompleted for a matching finished job
+ 51ms
+
+Describing Test-EfcResumePointer (boundary integrity)
+  [+] accepts offset 0
+ 71ms
+  [+] accepts an offset landing right after a newline
+ 47ms
+  [+] rejects an offset mid-line
+ 48ms
+  [+] rejects an offset past EOF
+ 45ms
+
+Describing Test-EfcPreflight (enumeration & safety guards)
+  [+] aggregates file counts and bytes from a mocked list pass
+ 416ms
+  [+] rejects blank or whitespace-only paths
+ 50ms
+  [+] rejects when source and destination resolve to the same path
+ 68ms
+  [+] rejects when the effective destination is nested inside the source
+ 62ms
+  [+] rejects when the local destination drive is unavailable
+ 65ms
+
+Describing Resolve-EfcEffectiveDestination (rsync-style trailing-slash semantics)
+  [+] copies contents directly (no nesting) when Source ends with a backslash
+ 54ms
+  [+] copies contents directly (no nesting) when Source ends with a forward slash
+ 46ms
+  [+] nests Source as a subfolder of Destination when there is no trailing separator
+ 48ms
+  [+] falls back to Destination unchanged for a degenerate drive-root Source
+ 47ms
+  [+] falls back to Destination unchanged for a bare UNC server root
+ 46ms
+  [+] falls back to Destination unchanged for a bare UNC share root
+ 45ms
+  [+] nests the last segment of a deep UNC source
+ 54ms
+  [+] nests correctly when Source uses forward separators internally
+ 56ms
+  [+] nests a bare relative source name
+ 85ms
+  [+] is deterministic for a drive-relative source (no $PWD dependency)
+ 66ms
+  [+] never throws for adversarial source shapes
+ 68ms
+  [+] never throws for adversarial source shapes
+ 11ms
+  [+] never throws for adversarial source shapes
+ 11ms
+  [+] never throws for adversarial source shapes
+ 11ms
+  [+] never throws for adversarial source shapes
+ 9ms
+  [+] never throws for adversarial source shapes
+ 12ms
+  [+] never throws for adversarial source shapes
+ 12ms
+  [+] never throws for adversarial source shapes
+ 15ms
+  [+] never throws for adversarial source shapes
+ 9ms
+
+Describing Get-EfcPathRoot
+  [+] resolves the drive root of a local path
+ 58ms
+  [+] resolves the share root of a UNC path
+ 45ms
+
+Running tests from 'C:\Users\mvale\Projetinhos\EscapeFromCorporate\tests\Unit\UI.Tests.ps1'
+Describing Format-EfcBytes
+  [+] formats bytes across binary boundaries
+ 54ms
+
+Describing Read-EfcKeyCommand (non-blocking mapping)
+  [+] returns $null when no key is available
+ 99ms
+
+Describing Watch loop metrics reconciliation
+
+Transfer running. Controls: [P]ause  [R]esume  [A]bort
+
+|   100% | 2,93 KB/2,93 KB | 209,75 KB/s | files 2/2 | ETA 00:00:00
+
+  [+] accumulates files and bytes from a synthetic log and finalizes
+ 145ms
+Tests completed in 37.14s
+Tests Passed: 149, 
+Failed: 0, 
+Skipped: 0, 
+Inconclusive: 0, 
+NotRun: 0
+Processing code coverage result.
+Code Coverage result processed in 4553 ms.
+Covered 80,48% / 75%. 1.091 analyzed Commands in 32 Files.
+Missed commands:
+
+File                                                                           Class Function               
+----                                                                           ----- --------               
+src\EscapeFromCorporate\EscapeFromCorporate.psm1                                                            
+src\EscapeFromCorporate\EscapeFromCorporate.psm1                                                            
+src\EscapeFromCorporate\EscapeFromCorporate.psm1                                                            
+src\EscapeFromCorporate\EscapeFromCorporate.psm1                                                            
+src\EscapeFromCorporate\Private\Engine\Add-EfcMetricsFromEntries.ps1                 Add-EfcMetricsFromEn...
+src\EscapeFromCorporate\Private\Engine\Add-EfcMetricsFromEntries.ps1                 Add-EfcMetricsFromEn...
+src\EscapeFromCorporate\Private\Engine\Connect-Robocopy.ps1                          Connect-Robocopy       
+src\EscapeFromCorporate\Private\Engine\Connect-Robocopy.ps1                          Connect-Robocopy       
+src\EscapeFromCorporate\Private\Engine\Connect-Robocopy.ps1                          Connect-Robocopy       
+src\EscapeFromCorporate\Private\Engine\Connect-Robocopy.ps1                          Connect-Robocopy       
+src\EscapeFromCorporate\Private\Engine\Connect-Robocopy.ps1                          Connect-Robocopy       
+src\EscapeFromCorporate\Private\Engine\Connect-Robocopy.ps1                          Connect-Robocopy       
+src\EscapeFromCorporate\Private\Engine\Connect-Robocopy.ps1                          Connect-Robocopy       
+src\EscapeFromCorporate\Private\Engine\Connect-Robocopy.ps1                          Connect-Robocopy       
+src\EscapeFromCorporate\Private\Engine\Connect-Robocopy.ps1                          Connect-Robocopy       
+src\EscapeFromCorporate\Private\Engine\Connect-Robocopy.ps1                          Connect-Robocopy       
+src\EscapeFromCorporate\Private\Engine\Connect-Robocopy.ps1                          Connect-Robocopy       
+src\EscapeFromCorporate\Private\Engine\Connect-Robocopy.ps1                          Connect-Robocopy       
+src\EscapeFromCorporate\Private\Engine\Connect-Robocopy.ps1                          Connect-Robocopy       
+src\EscapeFromCorporate\Private\Engine\Connect-Robocopy.ps1                          Connect-Robocopy       
+src\EscapeFromCorporate\Private\Engine\Connect-Robocopy.ps1                          Connect-Robocopy       
+src\EscapeFromCorporate\Private\Engine\Connect-Robocopy.ps1                          Connect-Robocopy       
+src\EscapeFromCorporate\Private\Engine\Connect-Robocopy.ps1                          Connect-Robocopy       
+src\EscapeFromCorporate\Private\Engine\Connect-Robocopy.ps1                          Connect-Robocopy       
+src\EscapeFromCorporate\Private\Engine\Stop-RobocopyProcess.ps1                      Stop-RobocopyProcess   
+src\EscapeFromCorporate\Private\Engine\Stop-RobocopyProcess.ps1                      Stop-RobocopyProcess   
+src\EscapeFromCorporate\Private\Engine\Stop-RobocopyProcess.ps1                      Stop-RobocopyProcess   
+src\EscapeFromCorporate\Private\Engine\Stop-RobocopyProcess.ps1                      Stop-RobocopyProcess   
+src\EscapeFromCorporate\Private\Engine\Stop-RobocopyProcess.ps1                      Stop-RobocopyProcess   
+src\EscapeFromCorporate\Private\Engine\Stop-RobocopyProcess.ps1                      Stop-RobocopyProcess   
+src\EscapeFromCorporate\Private\Engine\Suspend-EfcProcess.ps1                        Suspend-EfcProcess     
+src\EscapeFromCorporate\Private\Engine\Suspend-EfcProcess.ps1                        Suspend-EfcProcess     
+src\EscapeFromCorporate\Private\Engine\Suspend-EfcProcess.ps1                        Suspend-EfcProcess     
+src\EscapeFromCorporate\Private\Engine\Suspend-EfcProcess.ps1                        Suspend-EfcProcess     
+src\EscapeFromCorporate\Private\Engine\Suspend-EfcProcess.ps1                        Suspend-EfcProcess     
+src\EscapeFromCorporate\Private\Engine\Suspend-EfcProcess.ps1                        Suspend-EfcProcess     
+src\EscapeFromCorporate\Private\Engine\Suspend-EfcProcess.ps1                        Suspend-EfcProcess     
+src\EscapeFromCorporate\Private\Engine\Suspend-EfcProcess.ps1                        Suspend-EfcProcess     
+src\EscapeFromCorporate\Private\Engine\Watch-RobocopyProcess.ps1                     Watch-RobocopyProcess  
+src\EscapeFromCorporate\Private\Engine\Watch-RobocopyProcess.ps1                     Watch-RobocopyProcess  
+src\EscapeFromCorporate\Private\Engine\Watch-RobocopyProcess.ps1                     Watch-RobocopyProcess  
+src\EscapeFromCorporate\Private\Engine\Watch-RobocopyProcess.ps1                     Watch-RobocopyProcess  
+src\EscapeFromCorporate\Private\Engine\Watch-RobocopyProcess.ps1                     Watch-RobocopyProcess  
+src\EscapeFromCorporate\Private\Engine\Watch-RobocopyProcess.ps1                     Watch-RobocopyProcess  
+src\EscapeFromCorporate\Private\Engine\Watch-RobocopyProcess.ps1                     Watch-RobocopyProcess  
+src\EscapeFromCorporate\Private\Engine\Watch-RobocopyProcess.ps1                     Watch-RobocopyProcess  
+src\EscapeFromCorporate\Private\Engine\Watch-RobocopyProcess.ps1                     Watch-RobocopyProcess  
+src\EscapeFromCorporate\Private\Engine\Watch-RobocopyProcess.ps1                     Watch-RobocopyProcess  
+src\EscapeFromCorporate\Private\Engine\Watch-RobocopyProcess.ps1                     Watch-RobocopyProcess  
+src\EscapeFromCorporate\Private\Engine\Watch-RobocopyProcess.ps1                     Watch-RobocopyProcess  
+src\EscapeFromCorporate\Private\Engine\Watch-RobocopyProcess.ps1                     Watch-RobocopyProcess  
+src\EscapeFromCorporate\Private\Engine\Watch-RobocopyProcess.ps1                     Watch-RobocopyProcess  
+src\EscapeFromCorporate\Private\Engine\Watch-RobocopyProcess.ps1                     Watch-RobocopyProcess  
+src\EscapeFromCorporate\Private\Engine\Watch-RobocopyProcess.ps1                     Watch-RobocopyProcess  
+src\EscapeFromCorporate\Private\Engine\Watch-RobocopyProcess.ps1                     Watch-RobocopyProcess  
+src\EscapeFromCorporate\Private\Engine\Watch-RobocopyProcess.ps1                     Watch-RobocopyProcess  
+src\EscapeFromCorporate\Private\Engine\Watch-RobocopyProcess.ps1                     Watch-RobocopyProcess  
+src\EscapeFromCorporate\Private\Engine\Watch-RobocopyProcess.ps1                     Watch-RobocopyProcess  
+src\EscapeFromCorporate\Private\Engine\Watch-RobocopyProcess.ps1                     Watch-RobocopyProcess  
+src\EscapeFromCorporate\Private\Engine\Watch-RobocopyProcess.ps1                     Watch-RobocopyProcess  
+src\EscapeFromCorporate\Private\Engine\Watch-RobocopyProcess.ps1                     Watch-RobocopyProcess  
+src\EscapeFromCorporate\Private\Engine\Watch-RobocopyProcess.ps1                     Watch-RobocopyProcess  
+src\EscapeFromCorporate\Private\Engine\Watch-RobocopyProcess.ps1                     Watch-RobocopyProcess  
+src\EscapeFromCorporate\Private\Engine\Watch-RobocopyProcess.ps1                     Watch-RobocopyProcess  
+src\EscapeFromCorporate\Private\Engine\Watch-RobocopyProcess.ps1                     Watch-RobocopyProcess  
+src\EscapeFromCorporate\Private\Engine\Watch-RobocopyProcess.ps1                     Watch-RobocopyProcess  
+src\EscapeFromCorporate\Private\Log\Read-RobocopyLog.ps1                             Read-RobocopyLog       
+src\EscapeFromCorporate\Private\Log\Read-RobocopyLog.ps1                             Read-RobocopyLog       
+src\EscapeFromCorporate\Private\Log\Read-RobocopyLog.ps1                             Read-RobocopyLog       
+src\EscapeFromCorporate\Private\State\Get-EfcState.ps1                               Get-EfcState           
+src\EscapeFromCorporate\Private\State\Get-EfcState.ps1                               Get-EfcState           
+src\EscapeFromCorporate\Private\State\Get-EfcState.ps1                               Get-EfcState           
+src\EscapeFromCorporate\Private\State\Get-EfcState.ps1                               Get-EfcState           
+src\EscapeFromCorporate\Private\State\Get-EfcState.ps1                               Get-EfcState           
+src\EscapeFromCorporate\Private\State\Get-EfcState.ps1                               Get-EfcState           
+src\EscapeFromCorporate\Private\State\Resolve-EfcResumption.ps1                      Resolve-EfcResumption  
+src\EscapeFromCorporate\Private\State\Resolve-EfcResumption.ps1                      Resolve-EfcResumption  
+src\EscapeFromCorporate\Private\State\Resolve-EfcResumption.ps1                      Resolve-EfcResumption  
+src\EscapeFromCorporate\Private\State\Resolve-EfcResumption.ps1                      Resolve-EfcResumption  
+src\EscapeFromCorporate\Private\State\Resolve-EfcResumption.ps1                      Resolve-EfcResumption  
+src\EscapeFromCorporate\Private\State\Resolve-EfcResumption.ps1                      Resolve-EfcResumption  
+src\EscapeFromCorporate\Private\State\Resolve-EfcResumption.ps1                      Resolve-EfcResumption  
+src\EscapeFromCorporate\Private\State\Resolve-EfcResumption.ps1                      Resolve-EfcResumption  
+src\EscapeFromCorporate\Private\State\Resolve-EfcResumption.ps1                      Resolve-EfcResumption  
+src\EscapeFromCorporate\Private\State\Resolve-EfcResumption.ps1                      Resolve-EfcResumption  
+src\EscapeFromCorporate\Private\State\Resolve-EfcResumption.ps1                      Resolve-EfcResumption  
+src\EscapeFromCorporate\Private\State\Resolve-EfcResumption.ps1                      Resolve-EfcResumption  
+src\EscapeFromCorporate\Private\State\Resolve-EfcResumption.ps1                      Resolve-EfcResumption  
+src\EscapeFromCorporate\Private\State\Test-EfcResumePointer.ps1                      Test-EfcResumePointer  
+src\EscapeFromCorporate\Private\State\Test-EfcResumePointer.ps1                      Test-EfcResumePointer  
+src\EscapeFromCorporate\Private\State\Test-EfcResumePointer.ps1                      Test-EfcResumePointer  
+src\EscapeFromCorporate\Private\UI\Read-EfcKeyCommand.ps1                            Read-EfcKeyCommand     
+src\EscapeFromCorporate\Private\UI\Read-EfcKeyCommand.ps1                            Read-EfcKeyCommand     
+src\EscapeFromCorporate\Private\UI\Read-EfcKeyCommand.ps1                            Read-EfcKeyCommand     
+src\EscapeFromCorporate\Private\UI\Read-EfcKeyCommand.ps1                            Read-EfcKeyCommand     
+src\EscapeFromCorporate\Private\UI\Read-EfcKeyCommand.ps1                            Read-EfcKeyCommand     
+src\EscapeFromCorporate\Private\UI\Read-EfcKeyCommand.ps1                            Read-EfcKeyCommand     
+src\EscapeFromCorporate\Private\UI\Read-EfcKeyCommand.ps1                            Read-EfcKeyCommand     
+src\EscapeFromCorporate\Private\UI\Read-EfcKeyCommand.ps1                            Read-EfcKeyCommand     
+src\EscapeFromCorporate\Private\UI\Read-EfcKeyCommand.ps1                            Read-EfcKeyCommand     
+src\EscapeFromCorporate\Private\UI\Test-EfcInteractiveHost.ps1                       Test-EfcInteractiveHost
+src\EscapeFromCorporate\Private\UI\Test-EfcInteractiveHost.ps1                       Test-EfcInteractiveHost
+src\EscapeFromCorporate\Private\UI\Test-EfcInteractiveHost.ps1                       Test-EfcInteractiveHost
+src\EscapeFromCorporate\Private\UI\Test-EfcInteractiveHost.ps1                       Test-EfcInteractiveHost
+src\EscapeFromCorporate\Private\UI\Test-EfcInteractiveHost.ps1                       Test-EfcInteractiveHost
+src\EscapeFromCorporate\Private\UI\Test-EfcInteractiveHost.ps1                       Test-EfcInteractiveHost
+src\EscapeFromCorporate\Private\UI\Test-EfcInteractiveHost.ps1                       Test-EfcInteractiveHost
+src\EscapeFromCorporate\Private\UI\Write-EfcSpinner.ps1                              Write-EfcSpinner       
+src\EscapeFromCorporate\Private\UI\Write-EfcSpinner.ps1                              Write-EfcSpinner       
+src\EscapeFromCorporate\Private\UI\Write-EfcSpinner.ps1                              Write-EfcSpinner       
+src\EscapeFromCorporate\Private\UI\Write-EfcSpinner.ps1                              Write-EfcSpinner       
+src\EscapeFromCorporate\Private\UI\Write-EfcSpinner.ps1                              Write-EfcSpinner       
+src\EscapeFromCorporate\Private\UI\Write-EfcSpinner.ps1                              Write-EfcSpinner       
+src\EscapeFromCorporate\Private\UI\Write-EfcSpinner.ps1                              Write-EfcSpinner       
+src\EscapeFromCorporate\Private\Validation\ConvertTo-EfcDriveKey.ps1                 ConvertTo-EfcDriveKey  
+src\EscapeFromCorporate\Private\Validation\ConvertTo-EfcDriveKey.ps1                 ConvertTo-EfcDriveKey  
+src\EscapeFromCorporate\Private\Validation\ConvertTo-EfcDriveKey.ps1                 ConvertTo-EfcDriveKey  
+src\EscapeFromCorporate\Private\Validation\Get-EfcPathRoot.ps1                       Get-EfcPathRoot        
+src\EscapeFromCorporate\Private\Validation\Resolve-EfcEffectiveDestination.ps1       Resolve-EfcEffective...
+src\EscapeFromCorporate\Private\Validation\Resolve-EfcEffectiveDestination.ps1       Resolve-EfcEffective...
+src\EscapeFromCorporate\Private\Validation\Resolve-EfcFinalPath.ps1                  Resolve-EfcFinalPath   
+src\EscapeFromCorporate\Private\Validation\Resolve-EfcFinalPath.ps1                  Resolve-EfcFinalPath   
+src\EscapeFromCorporate\Private\Validation\Resolve-EfcFinalPath.ps1                  Resolve-EfcFinalPath   
+src\EscapeFromCorporate\Private\Validation\Resolve-EfcFinalPath.ps1                  Resolve-EfcFinalPath   
+src\EscapeFromCorporate\Private\Validation\Resolve-EfcFinalPath.ps1                  Resolve-EfcFinalPath   
+src\EscapeFromCorporate\Private\Validation\Resolve-EfcFinalPath.ps1                  Resolve-EfcFinalPath   
+src\EscapeFromCorporate\Private\Validation\Resolve-EfcFinalPath.ps1                  Resolve-EfcFinalPath   
+src\EscapeFromCorporate\Private\Validation\Resolve-EfcFinalPath.ps1                  Resolve-EfcFinalPath   
+src\EscapeFromCorporate\Private\Validation\Resolve-EfcFinalPath.ps1                  Resolve-EfcFinalPath   
+src\EscapeFromCorporate\Private\Validation\Resolve-EfcFinalPath.ps1                  Resolve-EfcFinalPath   
+src\EscapeFromCorporate\Private\Validation\Resolve-EfcFinalPath.ps1                  Resolve-EfcFinalPath   
+src\EscapeFromCorporate\Private\Validation\Resolve-EfcFinalPath.ps1                  Resolve-EfcFinalPath   
+src\EscapeFromCorporate\Private\Validation\Test-EfcCopyIntegrity.ps1                 Test-EfcCopyIntegrity  
+src\EscapeFromCorporate\Private\Validation\Test-EfcCopyIntegrity.ps1                 Test-EfcCopyIntegrity  
+src\EscapeFromCorporate\Private\Validation\Test-EfcCopyIntegrity.ps1                 Test-EfcCopyIntegrity  
+src\EscapeFromCorporate\Private\Validation\Test-EfcCopyIntegrity.ps1                 Test-EfcCopyIntegrity  
+src\EscapeFromCorporate\Private\Validation\Test-EfcCopyIntegrity.ps1                 Test-EfcCopyIntegrity  
+src\EscapeFromCorporate\Private\Validation\Test-EfcCopyIntegrity.ps1                 Test-EfcCopyIntegrity  
+src\EscapeFromCorporate\Private\Validation\Test-EfcCopyIntegrity.ps1                 Test-EfcCopyIntegrity  
+src\EscapeFromCorporate\Private\Validation\Test-EfcCopyIntegrity.ps1                 Test-EfcCopyIntegrity  
+src\EscapeFromCorporate\Private\Validation\Test-EfcCopyIntegrity.ps1                 Test-EfcCopyIntegrity  
+src\EscapeFromCorporate\Private\Validation\Test-EfcCopyIntegrity.ps1                 Test-EfcCopyIntegrity  
+src\EscapeFromCorporate\Private\Validation\Test-EfcCopyIntegrity.ps1                 Test-EfcCopyIntegrity  
+src\EscapeFromCorporate\Private\Validation\Test-EfcCopyIntegrity.ps1                 Test-EfcCopyIntegrity  
+src\EscapeFromCorporate\Private\Validation\Test-EfcCopyIntegrity.ps1                 Test-EfcCopyIntegrity  
+src\EscapeFromCorporate\Private\Validation\Test-EfcCopyIntegrity.ps1                 Test-EfcCopyIntegrity  
+src\EscapeFromCorporate\Private\Validation\Test-EfcCopyIntegrity.ps1                 Test-EfcCopyIntegrity  
+src\EscapeFromCorporate\Private\Validation\Test-EfcCopyIntegrity.ps1                 Test-EfcCopyIntegrity  
+src\EscapeFromCorporate\Private\Validation\Test-EfcCopyIntegrity.ps1                 Test-EfcCopyIntegrity  
+src\EscapeFromCorporate\Private\Validation\Test-EfcCopyIntegrity.ps1                 Test-EfcCopyIntegrity  
+src\EscapeFromCorporate\Private\Validation\Test-EfcCopyIntegrity.ps1                 Test-EfcCopyIntegrity  
+src\EscapeFromCorporate\Private\Validation\Test-EfcCopyIntegrity.ps1                 Test-EfcCopyIntegrity  
+src\EscapeFromCorporate\Private\Validation\Test-EfcCopyIntegrity.ps1                 Test-EfcCopyIntegrity  
+src\EscapeFromCorporate\Private\Validation\Test-EfcCopyIntegrity.ps1                 Test-EfcCopyIntegrity  
+src\EscapeFromCorporate\Private\Validation\Test-EfcCopyIntegrity.ps1                 Test-EfcCopyIntegrity  
+src\EscapeFromCorporate\Private\Validation\Test-EfcCopyIntegrity.ps1                 Test-EfcCopyIntegrity  
+src\EscapeFromCorporate\Private\Validation\Test-EfcCopyIntegrity.ps1                 Test-EfcCopyIntegrity  
+src\EscapeFromCorporate\Private\Validation\Test-EfcCopyIntegrity.ps1                 Test-EfcCopyIntegrity  
+src\EscapeFromCorporate\Private\Validation\Test-EfcCopyIntegrity.ps1                 Test-EfcCopyIntegrity  
+src\EscapeFromCorporate\Private\Validation\Test-EfcCopyIntegrity.ps1                 Test-EfcCopyIntegrity  
+src\EscapeFromCorporate\Private\Validation\Test-EfcPreflight.ps1                     Test-EfcPreflight      
+src\EscapeFromCorporate\Private\Validation\Test-EfcPreflight.ps1                     Test-EfcPreflight      
+src\EscapeFromCorporate\Private\Validation\Test-EfcPreflight.ps1                     Test-EfcPreflight      
+src\EscapeFromCorporate\Private\Validation\Test-EfcPreflight.ps1                     Test-EfcPreflight      
+src\EscapeFromCorporate\Private\Validation\Test-EfcPreflight.ps1                     Test-EfcPreflight      
+src\EscapeFromCorporate\Private\Validation\Test-EfcPreflight.ps1                     Test-EfcPreflight      
+src\EscapeFromCorporate\Private\Validation\Test-EfcPreflight.ps1                     Test-EfcPreflight      
+src\EscapeFromCorporate\Public\Clear-EfcState.ps1                                    Clear-EfcState         
+src\EscapeFromCorporate\Public\Clear-EfcState.ps1                                    Clear-EfcState         
+src\EscapeFromCorporate\Public\Clear-EfcState.ps1                                    Clear-EfcState         
+src\EscapeFromCorporate\Public\Clear-EfcState.ps1                                    Clear-EfcState         
+src\EscapeFromCorporate\Public\Clear-EfcState.ps1                                    Clear-EfcState         
+src\EscapeFromCorporate\Public\Clear-EfcState.ps1                                    Clear-EfcState         
+src\EscapeFromCorporate\Public\Clear-EfcState.ps1                                    Clear-EfcState         
+src\EscapeFromCorporate\Public\Clear-EfcState.ps1                                    Clear-EfcState         
+src\EscapeFromCorporate\Public\Clear-EfcState.ps1                                    Clear-EfcState         
+src\EscapeFromCorporate\Public\Clear-EfcState.ps1                                    Clear-EfcState         
+src\EscapeFromCorporate\Public\Clear-EfcState.ps1                                    Clear-EfcState         
+src\EscapeFromCorporate\Public\Clear-EfcState.ps1                                    Clear-EfcState         
+src\EscapeFromCorporate\Public\Get-EfcJobState.ps1                                   Get-EfcJobState        
+src\EscapeFromCorporate\Public\Get-EfcJobState.ps1                                   Get-EfcJobState        
+src\EscapeFromCorporate\Public\Get-EfcJobState.ps1                                   Get-EfcJobState        
+src\EscapeFromCorporate\Public\Invoke-EfcJob.ps1                                     Invoke-EfcJob          
+src\EscapeFromCorporate\Public\Invoke-EfcJob.ps1                                     Invoke-EfcJob          
+src\EscapeFromCorporate\Public\Invoke-EfcJob.ps1                                     Invoke-EfcJob          
+src\EscapeFromCorporate\Public\Invoke-EfcJob.ps1                                     Invoke-EfcJob          
+src\EscapeFromCorporate\Public\Invoke-EfcJob.ps1                                     Invoke-EfcJob          
+src\EscapeFromCorporate\Public\Invoke-EfcJob.ps1                                     Invoke-EfcJob          
+src\EscapeFromCorporate\Public\Invoke-EfcJob.ps1                                     Invoke-EfcJob          
+src\EscapeFromCorporate\Public\Invoke-EfcJob.ps1                                     Invoke-EfcJob          
+src\EscapeFromCorporate\Public\Invoke-EfcJob.ps1                                     Invoke-EfcJob          
+src\EscapeFromCorporate\Public\Invoke-EfcJob.ps1                                     Invoke-EfcJob          
+src\EscapeFromCorporate\Public\Invoke-EfcJob.ps1                                     Invoke-EfcJob          
+src\EscapeFromCorporate\Public\Invoke-EfcJob.ps1                                     Invoke-EfcJob          
+src\EscapeFromCorporate\Public\Invoke-EfcJob.ps1                                     Invoke-EfcJob          
+src\EscapeFromCorporate\Public\Invoke-EfcJob.ps1                                     Invoke-EfcJob          
+src\EscapeFromCorporate\Public\Invoke-EfcJob.ps1                                     Invoke-EfcJob          
+src\EscapeFromCorporate\Public\Invoke-EfcJob.ps1                                     Invoke-EfcJob          
+src\EscapeFromCorporate\Public\Invoke-EfcJob.ps1                                     Invoke-EfcJob          
+src\EscapeFromCorporate\Public\Invoke-EfcJob.ps1                                     Invoke-EfcJob          
+src\EscapeFromCorporate\Public\Resume-EfcJob.ps1                                     Resume-EfcJob          
+src\EscapeFromCorporate\Public\Resume-EfcJob.ps1                                     Resume-EfcJob          
+src\EscapeFromCorporate\Public\Resume-EfcJob.ps1                                     Resume-EfcJob          
+src\EscapeFromCorporate\Public\Resume-EfcJob.ps1                                     Resume-EfcJob          
+src\EscapeFromCorporate\Public\Resume-EfcJob.ps1                                     Resume-EfcJob          
+src\EscapeFromCorporate\Public\Resume-EfcJob.ps1                                     Resume-EfcJob          
+src\EscapeFromCorporate\Public\Resume-EfcJob.ps1                                     Resume-EfcJob          
+src\EscapeFromCorporate\Public\Resume-EfcJob.ps1                                     Resume-EfcJob          
+src\EscapeFromCorporate\Public\Resume-EfcJob.ps1                                     Resume-EfcJob          
+src\EscapeFromCorporate\Public\Resume-EfcJob.ps1                                     Resume-EfcJob          
+src\EscapeFromCorporate\Public\Resume-EfcJob.ps1                                     Resume-EfcJob          
+src\EscapeFromCorporate\Public\Resume-EfcJob.ps1                                     Resume-EfcJob          
+src\EscapeFromCorporate\Public\Resume-EfcJob.ps1                                     Resume-EfcJob          
+
+
+
+All 149 test(s) passed.
+Done /Test 00:00:55.4596934
+Build succeeded. 3 tasks, 0 errors, 0 warnings 00:00:55.7411682
+**********************
+Fim da transcrição do Windows PowerShell
+Hora de término: 20261123150927
+**********************
+
