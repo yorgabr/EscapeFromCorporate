@@ -55,6 +55,24 @@ if (($env:PSModulePath -split $sep) -notcontains $ModulesRoot) {
     $env:PSModulePath = $ModulesRoot + $sep + $env:PSModulePath
 }
 
+# ------------------------------------------------------------------------------
+# Session hygiene: never let a pre-loaded copy of the module leak into the build.
+# ------------------------------------------------------------------------------
+# Invoke-Build runs in the CALLER's session. A copy of the module loaded from another
+# path (an Import-Module in $PROFILE, Import-Module EscapeFromCorporate after Install,
+# or module auto-loading) becomes a SECOND entry once the tests import the dev-tree
+# copy, and Pester's InModuleScope refuses to choose:
+#   "Multiple script or manifest modules named 'EscapeFromCorporate' are currently loaded."
+# platyPS (New-MarkdownHelp -Module <name>) could also document the wrong copy.
+# Clear every loaded copy before the first task and again after the last one (even when
+# a task fails), so the build starts clean and leaves the session clean too.
+function Remove-EfcLoadedModule {
+    Get-Module -Name 'EscapeFromCorporate' -All -ErrorAction SilentlyContinue |
+        Remove-Module -Force -ErrorAction SilentlyContinue
+}
+Enter-Build { Remove-EfcLoadedModule }
+Exit-Build  { Remove-EfcLoadedModule }
+
 # ==============================================================================
 # TASK: Bootstrap
 # Guarantees Invoke-Build, Pester 5+, and PSScriptAnalyzer are vendored locally.
